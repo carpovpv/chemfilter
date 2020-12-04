@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/download.png</file>
+        <file>syntax/script.txt</file>
+        <file>images/no.png</file>
+        <file>images/ok.png</file>
+        <file>images/add.png</file>
+        <file>images/cancel.png</file>
+        <file>images/done.png</file>
+        <file>images/edit.png</file>
+        <file>images/o.png</file>
+        <file>images/oos.png</file>
+        <file>images/partial.png</file>
+        <file>images/refresh.png</file>
+        <file>images/table.png</file>
+        <file>images/calc.png</file>
+        <file>images/arrow-down.png</file>
+        <file>images/arrow-up.png</file>
+    </qresource>
+</RCC>
