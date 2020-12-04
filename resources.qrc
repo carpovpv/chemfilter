@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/download.png</file>
+        <file>images/rulis.png</file>
         <file>syntax/script.txt</file>
         <file>images/no.png</file>
         <file>images/ok.png</file>
