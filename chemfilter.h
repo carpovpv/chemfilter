@@ -77,7 +77,6 @@ private:
     Ui::ChemFilter *ui;
 
     QLabel *stsInfo;
-    QLabel *stsMsu;
     QLabel *stsCenter;
 
     QSettings * settings;
@@ -97,6 +96,8 @@ private:
 
     QVector<class ModelInfo> models;
     QMap<QString, QTreeWidgetItem *> catItems;
+
+    QStringList propsInEngine;
 
     volatile bool m_stop;
 
@@ -125,6 +126,8 @@ private slots:
 
     void enterValue(QModelIndex ind);
     void save();
+
+    void loadWhere();
 };
 
 #endif // CHEMFILTER_H

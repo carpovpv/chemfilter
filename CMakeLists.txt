@@ -16,12 +16,13 @@ SET (HEADERS chemfilter.h clearthread.h lap_checkbox.h newcolumn.h
     style/qstylecache_p.h
     histwidget.h
     enterresult.h
+    heighttextedit.h
     )
 
 SET (SOURCES delegate.cpp qsartablemodel.cpp newcolumn.cpp
              chemfilter.cpp main.cpp clearthread.cpp transformermodel.cpp qsarsortmodel.cpp
              style/qplastiquestyle.cpp
-             style/qstylehelper.cpp histwidget.cpp enterresult.cpp
+             style/qstylehelper.cpp histwidget.cpp enterresult.cpp heighttextedit.cpp
              )
 
 SET ( UI chemfilter.ui newcolumn.ui enterresult.ui)

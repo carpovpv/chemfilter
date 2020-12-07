@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QCoreApplication::setOrganizationName("BIGCHEM");
-    QCoreApplication::setOrganizationDomain("bigchem.eu");
+    QCoreApplication::setOrganizationName("RULIS");
+    QCoreApplication::setOrganizationDomain("rulis.ru");
     QCoreApplication::setApplicationName("ChemFilter");
 
     a.setStyle(new QPlastiqueStyle());

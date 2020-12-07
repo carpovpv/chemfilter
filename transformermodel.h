@@ -2,7 +2,6 @@
 
    Transformer Screening Project.
 
-   BIGCHEM, GMBH
    P. Karpov, 2020
    carpovpv@gmail.com
 

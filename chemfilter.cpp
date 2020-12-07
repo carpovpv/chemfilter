@@ -74,15 +74,11 @@ ChemFilter::ChemFilter(QWidget *parent) :
     stsInfo = new QLabel(this);
     stsInfo->setText("Ready to use!");
 
-    stsMsu = new QLabel(this);
-    stsMsu->setText(tr("BIGCHEM"));
-
     stsCenter = new QLabel(this);
     stsCenter->setText(tr(""));
 
     ui->statusBar->addWidget(stsInfo);
     ui->statusBar->addWidget(stsCenter, 2);
-    ui->statusBar->addWidget(stsMsu);
 
     iconYes = QIcon(":/images/ok.png");
     iconNo = QIcon(":/images/no.png");
@@ -150,6 +146,8 @@ ChemFilter::~ChemFilter()
 
 void ChemFilter::LoadModels()
 {
+    QMap<double, int> cnts;
+
     QDir dir;
     dir.setPath(qApp->applicationDirPath() + "/models");
     dir.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
@@ -214,6 +212,9 @@ void ChemFilter::LoadModels()
             int idx = models.size();
             models.push_back(inf);
 
+            for(int i = 0; i< inf.intervals.size(); i++)
+                cnts[inf.intervals[i].percent]++;
+
             QTreeWidgetItem * par = nullptr;
             if(catItems.contains(inf.category))
                par = catItems[inf.category];
@@ -224,7 +225,7 @@ void ChemFilter::LoadModels()
             }
 
             QTreeWidgetItem *it = new QTreeWidgetItem(par, {inf.name});
-            it->setCheckState(0, Qt::Unchecked);
+            it->setCheckState(0, Qt::Checked);
             it->setData(0, Qt::UserRole, idx);
 
             inf.printInfo();
@@ -232,9 +233,39 @@ void ChemFilter::LoadModels()
 
     }
 
-    ui->lstModels->sortItems(0, Qt::AscendingOrder);
+    ui->lstModels->sortItems(0, Qt::AscendingOrder); 
+    ui->lstModels->expandAll();
 
     qDebug() << "Loaded " << models.size() << " models.";
+
+    ui->cmbFilter->addItem("", QString());
+    for(auto it = cnts.begin(); it != cnts.end(); it++)
+    {
+        if(it.value() == models.size())
+        {
+            double threshold = it.key();
+
+            QStringList where;
+            for(int i=0; i< models.size(); i++)
+            {
+                for(int j=0; j< models[i].intervals.size(); j++)
+                {
+                    if(models[i].intervals[j].percent == threshold)
+                    {
+                        where << (" ( " + models[i].var + " >= " + QString::number(models[i].intervals[j].low) +
+                                  " && " + models[i].var + " <= " + QString::number(models[i].intervals[j].high) + ") ");
+                        break;
+                    }
+                }
+            }
+
+            ui->cmbFilter->addItem(QString::number(threshold, 'f', 0) + "% of DrugBank", where.join(" && "));
+        }
+    }
+
+    connect(ui->cmbFilter, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(loadWhere()));
+
 }
 
 void ChemFilter::LoadSdf()
@@ -689,12 +720,17 @@ void ChemFilter::filter()
         return;
     }
 
+    for(int i=0; i< propsInEngine.size(); i++)
+        engine->globalObject().setProperty(propsInEngine[i], QScriptValue());
+    propsInEngine.clear();
+
     QString script = ui->txtFilter->toPlainText().trimmed();
     QMap<QString, int> maps;
 
     //test run
     for(int i=3; i< mdl->cols.size(); i++)
     {
+        propsInEngine << mdl->cols[i];
         engine->globalObject().setProperty(mdl->cols[i], "1");
         maps[mdl->cols[i]] = i;
     }
@@ -710,7 +746,6 @@ void ChemFilter::filter()
     //end test run
 
     sortModel->setNewScript(script, maps);
-
     stsInfo->setText(tr("Loaded %1 molecules. Filtered %2").arg(mdl->rowCount()).arg(sortModel->rowCount()));
 }
 
@@ -848,4 +883,9 @@ void ChemFilter::save()
     }
 
     fn.close();
+}
+
+void ChemFilter::loadWhere()
+{
+    ui->txtFilter->setPlainText(ui->cmbFilter->currentData().toString());
 }

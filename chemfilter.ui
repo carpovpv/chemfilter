@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1290</width>
-    <height>906</height>
+    <width>1282</width>
+    <height>943</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,383 +18,494 @@
     <normaloff>:/images/rulis.png</normaloff>:/images/rulis.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_7">
+   <layout class="QGridLayout" name="gridLayout_13">
     <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="0">
-       <widget class="QWidget" name="widget" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>2</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+     <widget class="QSplitter" name="splitter_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QWidget" name="widget_6" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>2</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_12">
+        <property name="leftMargin">
+         <number>0</number>
         </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="1" column="0" colspan="8">
-            <widget class="QTableView" name="tblData">
-             <property name="sortingEnabled">
-              <bool>true</bool>
-             </property>
-             <attribute name="verticalHeaderDefaultSectionSize">
-              <number>150</number>
-             </attribute>
-            </widget>
-           </item>
-           <item row="0" column="5">
-            <widget class="QToolButton" name="btnDown">
-             <property name="toolTip">
-              <string>Mark all the structres in the sheet.</string>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="resources.qrc">
-               <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="6">
-            <widget class="QToolButton" name="btnUp">
-             <property name="toolTip">
-              <string>Unset mark from all the structures in the sheet.</string>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="resources.qrc">
-               <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="3">
-            <widget class="QPushButton" name="btnOpenSdf">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Load a SDF file in the working sheet.</string>
-             </property>
-             <property name="text">
-              <string>Open SDf</string>
-             </property>
-             <property name="icon">
-              <iconset resource="resources.qrc">
-               <normaloff>:/images/calc.png</normaloff>:/images/calc.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="7">
-            <widget class="QPushButton" name="btnExportSDF">
-             <property name="text">
-              <string>Export   </string>
-             </property>
-             <property name="icon">
-              <iconset resource="resources.qrc">
-               <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="btnSave">
-             <property name="text">
-              <string>Save</string>
-             </property>
-             <property name="icon">
-              <iconset resource="resources.qrc">
-               <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSplitter" name="splitter">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+        <property name="topMargin">
+         <number>0</number>
         </property>
-        <widget class="QWidget" name="layoutWidget_2">
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="lblProperties">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>26</height>
-             </size>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="widget_2" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>2</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-            <property name="text">
-             <string>Properties</string>
+            <property name="topMargin">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="4">
-           <widget class="QListWidget" name="lstCols">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
+            <property name="rightMargin">
+             <number>0</number>
             </property>
-            <property name="selectionMode">
-             <enum>QAbstractItemView::SingleSelection</enum>
+            <property name="bottomMargin">
+             <number>0</number>
             </property>
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Available models</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnCalculate">
+                  <property name="toolTip">
+                   <string>Start prediction for the selcted models.</string>
+                  </property>
+                  <property name="text">
+                   <string>Run</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <widget class="QTreeWidget" name="lstModels">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>2</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <column>
+                 <property name="text">
+                  <string>Category/property</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QProgressBar" name="prg">
+                  <property name="value">
+                   <number>0</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="btnStopCalc">
+                  <property name="toolTip">
+                   <string>Stop prediction process.</string>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/images/no.png</normaloff>:/images/no.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="widget" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>2</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QToolButton" name="btnAddColumn">
-            <property name="toolTip">
-             <string>Add a new column.</string>
+            <property name="topMargin">
+             <number>0</number>
             </property>
-            <property name="statusTip">
-             <string>Yoou can add a new column and provide a simple Excel-like formula to calculate values for this new property based on columns that are already in the sheet.</string>
+            <property name="rightMargin">
+             <number>0</number>
             </property>
-            <property name="text">
-             <string>Add</string>
+            <property name="bottomMargin">
+             <number>0</number>
             </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="btnStats">
-            <property name="toolTip">
-             <string>Analyze the values in the selected column.</string>
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="1" column="0" colspan="8">
+               <widget class="QTableView" name="tblData">
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <attribute name="verticalHeaderDefaultSectionSize">
+                 <number>150</number>
+                </attribute>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <widget class="QToolButton" name="btnDown">
+                <property name="toolTip">
+                 <string>Mark all the structres in the sheet.</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="6">
+               <widget class="QToolButton" name="btnUp">
+                <property name="toolTip">
+                 <string>Unset mark from all the structures in the sheet.</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="3">
+               <widget class="QPushButton" name="btnOpenSdf">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Load a SDF file in the working sheet.</string>
+                </property>
+                <property name="text">
+                 <string>Open SDf</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/calc.png</normaloff>:/images/calc.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="7">
+               <widget class="QPushButton" name="btnExportSDF">
+                <property name="text">
+                 <string>Export   </string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="3">
+               <widget class="QPushButton" name="btnSave">
+                <property name="text">
+                 <string>Save</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="widget_4" native="true">
+           <layout class="QGridLayout" name="gridLayout_7">
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-            <property name="text">
-             <string>Stats</string>
+            <property name="topMargin">
+             <number>0</number>
             </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/calc.png</normaloff>:/images/calc.png</iconset>
+            <property name="rightMargin">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QToolButton" name="btnDelete">
-            <property name="toolTip">
-             <string>Delete the selected column from the sheet.</string>
+            <property name="bottomMargin">
+             <number>0</number>
             </property>
-            <property name="text">
-             <string>Delete</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/o.png</normaloff>:/images/o.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="4">
-           <layout class="QGridLayout" name="gridLayout_8">
-            <item row="3" column="0">
-             <widget class="QWidget" name="widget_3" native="true">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_3">
+              <item row="0" column="0">
+               <widget class="QLabel" name="lblProperties">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>26</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Properties</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="4">
+               <widget class="QListWidget" name="lstCols">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>1</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::SingleSelection</enum>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QToolButton" name="btnAddColumn">
+                <property name="toolTip">
+                 <string>Add a new column.</string>
+                </property>
+                <property name="statusTip">
+                 <string>Yoou can add a new column and provide a simple Excel-like formula to calculate values for this new property based on columns that are already in the sheet.</string>
+                </property>
+                <property name="text">
+                 <string>Add</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QToolButton" name="btnStats">
+                <property name="toolTip">
+                 <string>Analyze the values in the selected column.</string>
+                </property>
+                <property name="text">
+                 <string>Stats</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/calc.png</normaloff>:/images/calc.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QToolButton" name="btnDelete">
+                <property name="toolTip">
+                 <string>Delete the selected column from the sheet.</string>
+                </property>
+                <property name="text">
+                 <string>Delete</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resources.qrc">
+                  <normaloff>:/images/o.png</normaloff>:/images/o.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="4">
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="3" column="0">
+                 <widget class="QWidget" name="widget_3" native="true">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="lblProperty">
+                  <property name="text">
+                   <string>TextLabel</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="lblInfo">
+                  <property name="text">
+                   <string>Info</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="HistWidget" name="wdgHist" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>150</height>
+                   </size>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_9">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="widget_5" native="true">
+       <layout class="QGridLayout" name="gridLayout_11">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="1" column="0" colspan="2">
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Filtering</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="4">
+             <widget class="HeightTextEdit" name="txtFilter">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="lblProperty">
+            <item row="0" column="3">
+             <widget class="QToolButton" name="btnFilter">
+              <property name="toolTip">
+               <string>Perform advanced filtering of the molceules based on the filter below.</string>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>Filter</string>
+              </property>
+              <property name="icon">
+               <iconset resource="resources.qrc">
+                <normaloff>:/images/ok.png</normaloff>:/images/ok.png</iconset>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="lblInfo">
-              <property name="text">
-               <string>Info</string>
+            <item row="0" column="2">
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-             </widget>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
-            <item row="2" column="0">
-             <widget class="HistWidget" name="wdgHist" native="true">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>100</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>150</height>
-               </size>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_9">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-              </layout>
-             </widget>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="cmbFilter"/>
             </item>
            </layout>
           </item>
          </layout>
-        </widget>
-        <widget class="QWidget" name="layoutWidget_1">
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="2" column="4">
-           <widget class="QToolButton" name="btnStopCalc">
-            <property name="toolTip">
-             <string>Stop prediction process.</string>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/no.png</normaloff>:/images/no.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="4">
-           <widget class="QProgressBar" name="prg">
-            <property name="value">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Available models</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QToolButton" name="btnCalculate">
-            <property name="toolTip">
-             <string>Start prediction for the selcted models.</string>
-            </property>
-            <property name="text">
-             <string>Caclulate</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="3">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="0" colspan="5">
-           <widget class="QTreeWidget" name="lstModels">
-            <column>
-             <property name="text">
-              <string>Category/property</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="layoutWidget_3">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Filtering</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="3">
-           <widget class="QPlainTextEdit" name="txtFilter"/>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="btnFilter">
-            <property name="toolTip">
-             <string>Perform advanced filtering of the molceules based on the filter below.</string>
-            </property>
-            <property name="text">
-             <string>Filter</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/ok.png</normaloff>:/images/ok.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-     </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -457,6 +568,11 @@
    <extends>QWidget</extends>
    <header>histwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HeightTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>heighttextedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
