@@ -82,7 +82,7 @@ TransformerModel::TransformerModel(const char *fname)
  
     fclose(fp);
 
-    double * pdata = (double *)data;
+    float * pdata = (float *)data;
     classification = (pdata[0] == 1.0);
     if(!classification)
     {
@@ -99,14 +99,14 @@ TransformerModel::TransformerModel(const char *fname)
     //We alloc once for all matrixes in the model. Then we use pointers to different 
     //memory locations devoted to specific matrixies and results.
 
-    q = (double *) malloc(
+    q = (float *) malloc(
         (10 * (MaxSmilesSize + ConvOffset) * EmbeddingSize * HeadsCount  // Q, V, K in the SelfAttention Module
          + (MaxSmilesSize + ConvOffset) * (MaxSmilesSize + ConvOffset)  // attention coefficients
          + (MaxSmilesSize + ConvOffset) * EmbeddingSize * 200           // output of the convolutional filter
          + 1720                                                         // otput of the MaxPool layer
          + (MaxSmilesSize + ConvOffset) * EmbeddingSize                 // positional encodings
          + (MaxSmilesSize + ConvOffset) * EmbeddingSize                 // vocab encodings
-         ) * MaxBatchSize * sizeof(double));
+         ) * MaxBatchSize * sizeof(float));
     
     if ( q == nullptr)
     {
@@ -130,9 +130,9 @@ TransformerModel::TransformerModel(const char *fname)
         for(int i=0; i< EmbeddingSize; i++)
         {
             if(i % 2 == 0)
-                pos[ j * EmbeddingSize + i] = sin( (j + 1.0) / pow(10000.0, double(i) / EmbeddingSize));
+                pos[ j * EmbeddingSize + i] = sin( (j + 1.0) / pow(10000.0, float(i) / EmbeddingSize));
             else
-                pos[ j * EmbeddingSize + i] = cos( (j + 1.0) / pow(10000.0, double(i-1) / EmbeddingSize));
+                pos[ j * EmbeddingSize + i] = cos( (j + 1.0) / pow(10000.0, float(i-1) / EmbeddingSize));
         }
     
 
@@ -254,7 +254,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
     //Adjustment for the max of conv windows.
     const int NN = N + ConvOffset;
 
-    std::memset(smiles_embedding, 0, (MaxSmilesSize + ConvOffset) * MaxBatchSize * sizeof(double));
+    std::memset(smiles_embedding, 0, (MaxSmilesSize + ConvOffset) * MaxBatchSize * sizeof(float));
     std::memset(x, 0, (ConvOffset + MaxSmilesSize) * MaxBatchSize * sizeof(int) );
 
     int i_mol = 0;
@@ -274,9 +274,9 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
     {
        for (int i=0; i< NN; ++i)    
           std::memcpy(&smiles_embedding[i_mol * NN * EmbeddingSize + i * EmbeddingSize],
-                    &mdl[x[i_mol * NN + i] * EmbeddingSize], EmbeddingSize * sizeof(double) );
+                    &mdl[x[i_mol * NN + i] * EmbeddingSize], EmbeddingSize * sizeof(float) );
        //Add Position.
-       cblas_daxpy(left_mask_id[i_mol] * EmbeddingSize, 1.0, pos, 1, 
+       cblas_saxpy(left_mask_id[i_mol] * EmbeddingSize, 1.0, pos, 1,
                    &smiles_embedding[i_mol * NN * EmbeddingSize], 1);
     }
 
@@ -286,17 +286,17 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
         #pragma omp parallel sections
         {
            #pragma omp section
-               cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+               cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
                         EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, Q1[layer],
                         EmbeddingSize * HeadsCount, 0.0, q, EmbeddingSize * HeadsCount);
 
            #pragma omp section
-               cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+               cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
                         EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, K1[layer],
                         EmbeddingSize * HeadsCount, 0.0, k, EmbeddingSize * HeadsCount);
 
            #pragma omp section
-               cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+               cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
                         EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, V1[layer],
                         EmbeddingSize * HeadsCount, 0.0, v, EmbeddingSize * HeadsCount);
         }
@@ -306,7 +306,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
              for (int head= 0; head< HeadsCount; ++head)
              {
 
-                cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, NN,
+                cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, NN,
                             NN, EmbeddingSize, 1.0,
                             &q[ i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
                             EmbeddingSize * HeadsCount,
@@ -316,13 +316,13 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
                 #pragma omp parallel for
                 for(int i= 0; i < NN; i++)
                 {
-                    double *s = &a[i*NN];
+                    float *s = &a[i*NN];
 
                     //In batch case mask might be different!
                     std::memset(s + left_mask_id[i_mol], 0,
-                                (NN - left_mask_id[i_mol]) * sizeof(double));
+                                (NN - left_mask_id[i_mol]) * sizeof(float));
 
-                    double S = 0.0;
+                    float S = 0.0;
                     for(int l =0; l< left_mask_id[i_mol]; l++)
                     {
                         *s = exp( *s / 8.0);
@@ -333,7 +333,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
                         *--s /= S;
                 }
 
-                cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN,
+                cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN,
                             EmbeddingSize, NN, 1.0, a, NN,
                             &v[i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
                             EmbeddingSize * HeadsCount, 0.0,
@@ -345,30 +345,30 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
 
         #pragma omp parallel for
         for(int i=0 ; i < NN * batch_size; i++)
-           std::memcpy(&a[i * EmbeddingSize], B1[layer], EmbeddingSize * sizeof(double) );
+           std::memcpy(&a[i * EmbeddingSize], B1[layer], EmbeddingSize * sizeof(float) );
 
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
                     EmbeddingSize, EmbeddingSize * HeadsCount, 1.0, sa, EmbeddingSize * HeadsCount, TD1[layer],
                     EmbeddingSize, 1.0, a, EmbeddingSize);
 
-        cblas_daxpy(NN * EmbeddingSize * batch_size, 1.0, smiles_embedding, 1, a, 1);
+        cblas_saxpy(NN * EmbeddingSize * batch_size, 1.0, smiles_embedding, 1, a, 1);
 
         #pragma omp parallel for collapse(2)
         for(int i_mol=0; i_mol < batch_size; i_mol++)
         for(int i= 0; i< NN; ++i)
         {
 
-            double s1 = 0;
-            double s2 = 0;
+            float s1 = 0;
+            float s2 = 0;
 
-            double *s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
+            float *s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
             for(int j=0; j< EmbeddingSize; j++)
             {
                  s2 += (*s) * (*s);
                  s1 += *s++;
             }
 
-            double Mean = s1 / EmbeddingSize;
+            float Mean = s1 / EmbeddingSize;
             s1 = sqrt(s2 - s1 * Mean)/8.0 + 1e-6;
 
             for(int j= EmbeddingSize -1; j>=0; j--)
@@ -378,7 +378,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
             }
         }
 
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
                     HiddenSize, EmbeddingSize, 1.0, a, EmbeddingSize, w1[layer],
                     HiddenSize, 0.0, q, HiddenSize);
 
@@ -386,8 +386,8 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
         for(int i_mol=0; i_mol < batch_size; i_mol++)
         for(int i= 0; i< NN; ++i)
         {
-            double * p = &b1[layer][0];
-            double * s = &q[i_mol * NN * HiddenSize + i*HiddenSize];
+            float * p = &b1[layer][0];
+            float * s = &q[i_mol * NN * HiddenSize + i*HiddenSize];
 
             for(int j=0; j < HiddenSize; j++)
             {
@@ -396,30 +396,30 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
                 s++;
             }
             std::memcpy(&k[i_mol * NN * EmbeddingSize + i* EmbeddingSize], b2[layer],
-                    EmbeddingSize * sizeof(double));
+                    EmbeddingSize * sizeof(float));
         }
 
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
                     EmbeddingSize, HiddenSize, 1.0, q, HiddenSize, w2[layer],
                     EmbeddingSize, 1.0, k, EmbeddingSize);
 
-        cblas_daxpy(NN * EmbeddingSize * batch_size, 1.0, k, 1, a, 1);
+        cblas_saxpy(NN * EmbeddingSize * batch_size, 1.0, k, 1, a, 1);
 
         #pragma omp parallel for collapse(2)
         for(int i_mol=0; i_mol < batch_size; i_mol++)
         for(int i=0; i<NN; ++i)
         {
-            double s1 = 0;
-            double s2 = 0;
+            float s1 = 0;
+            float s2 = 0;
 
-            double * s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
+            float * s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
             for(int j=0; j< EmbeddingSize; j++)
             {
                  s2 += (*s) * (*s);
                  s1 +=  *s++;
             }
 
-            double Mean = s1 / EmbeddingSize;
+            float Mean = s1 / EmbeddingSize;
             s1 = sqrt(s2 - s1 * Mean)/8.0 + 1e-6;
 
             for(int j= EmbeddingSize-1;j >=0; j--)
@@ -437,7 +437,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
     //next step is convolutional filters
 
     //We do not have relu here, because afterwards there is max function.
-    std::memset(&lc[0], 0, sizeof(double) * 1720 * batch_size);
+    std::memset(&lc[0], 0, sizeof(float) * 1720 * batch_size);
 
     for(int conv= 0; conv < 12; ++conv)
     {
@@ -450,11 +450,11 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
             std::memcpy(&q[ i_mol * nn * EmbeddingSize * cv_info[conv].conv_number +
                             i*EmbeddingSize * cv_info[conv].conv_number],
                         &smiles_embedding[i_mol * NN * EmbeddingSize + i*EmbeddingSize],
-                        EmbeddingSize * cv_info[conv].conv_number * sizeof(double) );
+                        EmbeddingSize * cv_info[conv].conv_number * sizeof(float) );
         }
 
 
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
                     nn * batch_size,
                     cv_info[conv].n_filter,
                     EmbeddingSize * cv_info[conv].conv_number, 1.0,
@@ -466,10 +466,10 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
         for(int i_mol=0; i_mol < batch_size; i_mol++)
         for(int i=0; i< nn; i++)
         {
-            double * value = &sa[i_mol * nn * cv_info[conv].n_filter +
+            float * value = &sa[i_mol * nn * cv_info[conv].n_filter +
                                  i * cv_info[conv].n_filter + 0];
-            double * bias = cv_info[conv].bias;
-            double * ll = &lc[i_mol * 1720 + cv_info[conv].start];
+            float * bias = cv_info[conv].bias;
+            float * ll = &lc[i_mol * 1720 + cv_info[conv].start];
 
             for(int j=0; j<cv_info[conv].n_filter; ++j)
             {
@@ -480,7 +480,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
         }
     }
 
-    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, batch_size,
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, batch_size,
                 512, 1720, 1.0, lc, 1720, CNN_W, 512, 0.0, k, 512);
 
     //#pragma omp parallel for collapse(2)
@@ -491,7 +491,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
            if(k[i_mol * 512 + i] < 0.0) k[i_mol * 512 + i] = 0.0;
        }
 
-    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, batch_size,
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, batch_size,
                 512, 512, 1.0, k, 512, High1,
                 512, 0.0, q, 512);
 
@@ -503,7 +503,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
         v[i_mol * 512 + i] = 1.0 - q[i_mol * 512 + i];
     }
 
-    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, batch_size,
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, batch_size,
                 512, 512, 1.0, k, 512, High2, 512, 0.0, sa, 512);
 
     for(i_mol=0; i_mol < batch_size; i_mol++)

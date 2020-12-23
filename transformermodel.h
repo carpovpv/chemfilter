@@ -12,7 +12,6 @@
 
 #include <map>
 #include <stdlib.h>
-#include <time.h>
 
 #include <iostream>
 #include <string>
@@ -56,7 +55,7 @@ public:
     struct ResultValue
     {
          bool valid;
-         double value[TransformerModel::MaxBatchSize];
+         float value[TransformerModel::MaxBatchSize];
          int size;
 
          ResultValue()
@@ -78,57 +77,57 @@ private:
 
     char * data; //model
     bool classification;
-    double v_min;
-    double v_max;
+    float v_min;
+    float v_max;
 
     //Variables for matrixes during the calculations.   
-    double * smiles_embedding;
-    double * pos;
+    float * smiles_embedding;
+    float * pos;
 
-    double *q, *k, *v;
-    double *a, *sa, *lc;
+    float *q, *k, *v;
+    float *a, *sa, *lc;
 
     //Variables for the model loaded.
-    double *mdl;
+    float *mdl;
 
     //Attention layers.
-    double * K1[3], *Q1[3], *V1[3], *TD1[3], *B1[3];
-    double * gamma1[3], *beta1[3], *w1[3], *b1[3], *w2[3], *b2[3];
-    double * gamma2[3], *beta2[3];
+    float * K1[3], *Q1[3], *V1[3], *TD1[3], *B1[3];
+    float * gamma1[3], *beta1[3], *w1[3], *b1[3], *w2[3], *b2[3];
+    float * gamma2[3], *beta2[3];
 
     //Convolutional filters.
-    double * Conv1,  * Conv1_B;
-    double * Conv2,  * Conv2_B;
-    double * Conv3,  * Conv3_B;
-    double * Conv4,  * Conv4_B;
-    double * Conv5,  * Conv5_B;
-    double * Conv6,  * Conv6_B;
-    double * Conv7,  * Conv7_B;
-    double * Conv8,  * Conv8_B;
-    double * Conv9,  * Conv9_B;
-    double * Conv10, * Conv10_B;
-    double * Conv15, * Conv15_B;
-    double * Conv20, * Conv20_B;
+    float * Conv1,  * Conv1_B;
+    float * Conv2,  * Conv2_B;
+    float * Conv3,  * Conv3_B;
+    float * Conv4,  * Conv4_B;
+    float * Conv5,  * Conv5_B;
+    float * Conv6,  * Conv6_B;
+    float * Conv7,  * Conv7_B;
+    float * Conv8,  * Conv8_B;
+    float * Conv9,  * Conv9_B;
+    float * Conv10, * Conv10_B;
+    float * Conv15, * Conv15_B;
+    float * Conv20, * Conv20_B;
 
     //HighWay module.
-    double * CNN_W, * CNN_WB;
-    double * High1, * High1_B;
-    double * High2, * High2_B;
+    float * CNN_W, * CNN_WB;
+    float * High1, * High1_B;
+    float * High2, * High2_B;
 
     //The final output;
-    double * Out_W;
-    double * Out_B;
+    float * Out_W;
+    float * Out_B;
     
     struct ConvInfo
     {
         int conv_number;
         int n_filter;
-        double * conv;    // W
-        double * bias;    // B
+        float * conv;    // W
+        float * bias;    // B
         int start;        // Start position of this filter in the lc array.
     };
 
-    double *ccc;
+    float *ccc;
 
 };
 
