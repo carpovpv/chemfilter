@@ -48,10 +48,10 @@ public:
     static const int ConvOffset    =  20;
     static const int HiddenSize    = 512;
 
-    static constexpr char const * vocab = " ^#%()+-./0123456789=@ABCDEFGHIKLMNOPRSTVXYZ[\\]abcdefgilmnoprstuy$";
+    static const char * vocab;
     static const int vocab_length = 66;  //The length of the vocabulary string.
     
-    TransformerModel(const char * fname, const char * prop = nullptr);
+    TransformerModel(const char * fname, const char * prop = NULL);
     ~TransformerModel();
 
     struct ResultValue
@@ -68,7 +68,7 @@ public:
 
     bool isGood() const;
     ResultValue predict(std::set<std::string> & mols, int max_n,
-                        float * embeddings = nullptr);
+                        float * embeddings = NULL);
 
     float * getSmilesEmbeddings();
     void setSmilesEmbeddings(float * s);

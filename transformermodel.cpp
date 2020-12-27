@@ -41,16 +41,18 @@ float student(int freedom)
     return tbl [freedom];
 }
 
+const char * TransformerModel::vocab = " ^#%()+-./0123456789=@ABCDEFGHIKLMNOPRSTVXYZ[\\]abcdefgilmnoprstuy$";
+
 TransformerModel::TransformerModel(const char *fname, const char *prop)
 {
-    data = nullptr;
-    q   = nullptr;
-    mdl = nullptr;
+    data = NULL;
+    q   = NULL;
+    mdl = NULL;
 
     m_prop = prop;
 
     FILE  * fp = fopen(fname, "rb");
-    if(fp == nullptr)
+    if(fp == NULL)
     {
         fprintf(stderr, "Error opening file's model.\n");
         return;
@@ -82,7 +84,7 @@ TransformerModel::TransformerModel(const char *fname, const char *prop)
     }
 
     data = (char *) malloc( size );
-    if(data == nullptr)
+    if(data == NULL)
     {
         fclose(fp);
         fprintf(stderr, "Memory allocation error.\n");
@@ -97,7 +99,7 @@ TransformerModel::TransformerModel(const char *fname, const char *prop)
         free(data);
         fprintf(stderr, "Error reading the model.\n");
 
-        data = nullptr;
+        data = NULL;
         return;
     }
  
@@ -129,12 +131,12 @@ TransformerModel::TransformerModel(const char *fname, const char *prop)
          + (MaxSmilesSize + ConvOffset) * EmbeddingSize                 // vocab encodings
          ) * MaxBatchSize * sizeof(float));
     
-    if ( q == nullptr)
+    if ( q == NULL)
     {
          free(data);
          fprintf(stderr, "Memory allocation error.\n");
 
-         data = nullptr;
+         data = NULL;
          return;       
     }
 
@@ -246,7 +248,7 @@ TransformerModel::~TransformerModel()
 
 bool TransformerModel::isGood() const
 {
-    return (q != nullptr && data != nullptr);
+    return (q != NULL && data != NULL);
 }
 
 TransformerModel::ResultValue TransformerModel::predict(std::set < std::string > & mols, int N,
@@ -277,7 +279,7 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
     NN = N + ConvOffset;
     int i_mol = 0;
 
-    if(embeddings == nullptr)
+    if(embeddings == NULL)
     {
 
         std::memset(smiles_embedding, 0, (MaxSmilesSize + ConvOffset) * MaxBatchSize * sizeof(float));

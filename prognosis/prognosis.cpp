@@ -61,7 +61,7 @@ int main()
     int n_mdl = 0;
 
     DIR * dir = opendir (".");
-    struct dirent * dir_models = nullptr;
+    struct dirent * dir_models = NULL;
     while ( (dir_models = readdir (dir)) )
     {
         const char * mdl = dir_models->d_name;
@@ -74,7 +74,7 @@ int main()
         bool is_counted = false;
 
         DIR * model = opendir(".");
-        struct dirent * dir_model = nullptr;
+        struct dirent * dir_model = NULL;
         while((dir_model = readdir( model )))
         {
             const char * r_mdl = dir_model->d_name;
