@@ -43,6 +43,8 @@ qt5_add_resources(QRC_SOURCES ${RESOURCES})
 
 QT5_WRAP_UI(UIS ${UI})
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/prognosis)
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
    add_executable(chemfilter WIN32 ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES})
    target_link_libraries(chemfilter Qt5::Widgets Qt5::Core Qt5::Sql Qt5::Network Qt5::Script openbabel openblas)

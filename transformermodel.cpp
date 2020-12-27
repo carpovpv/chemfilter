@@ -22,11 +22,32 @@
     #include <omp.h>
 #endif
 
-TransformerModel::TransformerModel(const char *fname)
+float student(int freedom)
+{
+    //two-sided 95%
+    static const float tbl []= {
+        -1.0,
+        12.71, 4.303, 3.182, 2.776, 2.571,
+        2.447, 2.365, 2.306, 2.262, 2.228,
+        2.201, 2.179, 2.160, 2.145, 2.131,
+        2.120, 2.110, 2.101, 2.093, 2.086,
+        2.080, 2.074, 2.069, 2.064, 2.060,
+        2.056, 2.052, 2.048, 2.045, 2.042
+    };
+
+    if(freedom > 30)
+        return 1.960;
+
+    return tbl [freedom];
+}
+
+TransformerModel::TransformerModel(const char *fname, const char *prop)
 {
     data = nullptr;
     q   = nullptr;
     mdl = nullptr;
+
+    m_prop = prop;
 
     FILE  * fp = fopen(fname, "rb");
     if(fp == nullptr)
@@ -91,7 +112,7 @@ TransformerModel::TransformerModel(const char *fname)
 
         mdl = pdata + 3;
 
-        printf("Borders: %g %g\n", v_min, v_max);
+        //printf("Borders: %g %g\n", v_min, v_max);
     }
     else
         mdl = pdata + 1;
@@ -111,7 +132,7 @@ TransformerModel::TransformerModel(const char *fname)
     if ( q == nullptr)
     {
          free(data);
-         fprintf(stderr, "Memory allocatin error.\n");
+         fprintf(stderr, "Memory allocation error.\n");
 
          data = nullptr;
          return;       
@@ -228,7 +249,8 @@ bool TransformerModel::isGood() const
     return (q != nullptr && data != nullptr);
 }
 
-TransformerModel::ResultValue TransformerModel::predict(std::set < std::string > & mols, int N)
+TransformerModel::ResultValue TransformerModel::predict(std::set < std::string > & mols, int N,
+                                                        float *embeddings)
 {
     struct ConvInfo cv_info[12] = {
          { 1, 100,  Conv1,  Conv1_B,    0},
@@ -253,185 +275,191 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
 
     //Adjustment for the max of conv windows.
     const int NN = N + ConvOffset;
-
-    std::memset(smiles_embedding, 0, (MaxSmilesSize + ConvOffset) * MaxBatchSize * sizeof(float));
-    std::memset(x, 0, (ConvOffset + MaxSmilesSize) * MaxBatchSize * sizeof(int) );
-
     int i_mol = 0;
-    for(std::set<std::string>::const_iterator it = mols.begin(); 
-        it != mols.end(); ++it)
-    {      
-        for(size_t i=0; i< (*it).size(); i++)
-           x[i_mol * NN + i] = char_to_ix[ (*it)[i] ];
 
-        left_mask_id[i_mol] = (*it).size();
-        i_mol++;
-    }    
-
-    //Extract Embeddings
-    #pragma omp parallel for
-    for(int i_mol = 0; i_mol < batch_size; i_mol++)
-    {
-       for (int i=0; i< NN; ++i)    
-          std::memcpy(&smiles_embedding[i_mol * NN * EmbeddingSize + i * EmbeddingSize],
-                    &mdl[x[i_mol * NN + i] * EmbeddingSize], EmbeddingSize * sizeof(float) );
-       //Add Position.
-       cblas_saxpy(left_mask_id[i_mol] * EmbeddingSize, 1.0, pos, 1,
-                   &smiles_embedding[i_mol * NN * EmbeddingSize], 1);
-    }
-
-    auto AttentionLayer = [&](int layer)
+    if(embeddings == nullptr)
     {
 
-        #pragma omp parallel sections
+        std::memset(smiles_embedding, 0, (MaxSmilesSize + ConvOffset) * MaxBatchSize * sizeof(float));
+        std::memset(x, 0, (ConvOffset + MaxSmilesSize) * MaxBatchSize * sizeof(int) );
+
+        for(std::set<std::string>::const_iterator it = mols.begin();
+            it != mols.end(); ++it)
         {
-           #pragma omp section
-               cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
-                        EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, Q1[layer],
-                        EmbeddingSize * HeadsCount, 0.0, q, EmbeddingSize * HeadsCount);
+            for(size_t i=0; i< (*it).size(); i++)
+               x[i_mol * NN + i] = char_to_ix[ (*it)[i] ];
 
-           #pragma omp section
-               cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
-                        EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, K1[layer],
-                        EmbeddingSize * HeadsCount, 0.0, k, EmbeddingSize * HeadsCount);
-
-           #pragma omp section
-               cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
-                        EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, V1[layer],
-                        EmbeddingSize * HeadsCount, 0.0, v, EmbeddingSize * HeadsCount);
+            left_mask_id[i_mol] = (*it).size();
+            i_mol++;
         }
 
+        //Extract Embeddings
+        #pragma omp parallel for
         for(int i_mol = 0; i_mol < batch_size; i_mol++)
         {
-             for (int head= 0; head< HeadsCount; ++head)
-             {
+           for (int i=0; i< NN; ++i)
+              std::memcpy(&smiles_embedding[i_mol * NN * EmbeddingSize + i * EmbeddingSize],
+                        &mdl[x[i_mol * NN + i] * EmbeddingSize], EmbeddingSize * sizeof(float) );
+           //Add Position.
+           cblas_saxpy(left_mask_id[i_mol] * EmbeddingSize, 1.0, pos, 1,
+                       &smiles_embedding[i_mol * NN * EmbeddingSize], 1);
+        }
 
-                cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, NN,
-                            NN, EmbeddingSize, 1.0,
-                            &q[ i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
-                            EmbeddingSize * HeadsCount,
-                            &k[ i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
-                            EmbeddingSize * HeadsCount, 0.0, a, NN);
+        auto AttentionLayer = [&](int layer)
+        {
 
-                #pragma omp parallel for
-                for(int i= 0; i < NN; i++)
-                {
-                    float *s = &a[i*NN];
+            #pragma omp parallel sections
+            {
+               #pragma omp section
+                   cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+                            EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, Q1[layer],
+                            EmbeddingSize * HeadsCount, 0.0, q, EmbeddingSize * HeadsCount);
 
-                    //In batch case mask might be different!
-                    std::memset(s + left_mask_id[i_mol], 0,
-                                (NN - left_mask_id[i_mol]) * sizeof(float));
+               #pragma omp section
+                   cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+                            EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, K1[layer],
+                            EmbeddingSize * HeadsCount, 0.0, k, EmbeddingSize * HeadsCount);
 
-                    float S = 0.0;
-                    for(int l =0; l< left_mask_id[i_mol]; l++)
+               #pragma omp section
+                   cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+                            EmbeddingSize * HeadsCount, EmbeddingSize, 1.0, smiles_embedding, EmbeddingSize, V1[layer],
+                            EmbeddingSize * HeadsCount, 0.0, v, EmbeddingSize * HeadsCount);
+            }
+
+            for(int i_mol = 0; i_mol < batch_size; i_mol++)
+            {
+                 for (int head= 0; head< HeadsCount; ++head)
+                 {
+
+                    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, NN,
+                                NN, EmbeddingSize, 1.0,
+                                &q[ i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
+                                EmbeddingSize * HeadsCount,
+                                &k[ i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
+                                EmbeddingSize * HeadsCount, 0.0, a, NN);
+
+                    #pragma omp parallel for
+                    for(int i= 0; i < NN; i++)
                     {
-                        *s = exp( *s / 8.0);
-                        S += *s++;
+                        float *s = &a[i*NN];
+
+                        //In batch case mask might be different!
+                        std::memset(s + left_mask_id[i_mol], 0,
+                                    (NN - left_mask_id[i_mol]) * sizeof(float));
+
+                        float S = 0.0;
+                        for(int l =0; l< left_mask_id[i_mol]; l++)
+                        {
+                            *s = exp( *s / 8.0);
+                            S += *s++;
+                        }
+
+                        for(int l =0; l< left_mask_id[i_mol]; l++)
+                            *--s /= S;
                     }
 
-                    for(int l =0; l< left_mask_id[i_mol]; l++)
-                        *--s /= S;
+                    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN,
+                                EmbeddingSize, NN, 1.0, a, NN,
+                                &v[i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
+                                EmbeddingSize * HeadsCount, 0.0,
+                                &sa[i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
+                                EmbeddingSize * HeadsCount);
                 }
 
-                cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN,
-                            EmbeddingSize, NN, 1.0, a, NN,
-                            &v[i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
-                            EmbeddingSize * HeadsCount, 0.0,
-                            &sa[i_mol * NN * HeadsCount * EmbeddingSize + EmbeddingSize * head],
-                            EmbeddingSize * HeadsCount);
             }
 
-        }
+            #pragma omp parallel for
+            for(int i=0 ; i < NN * batch_size; i++)
+               std::memcpy(&a[i * EmbeddingSize], B1[layer], EmbeddingSize * sizeof(float) );
 
-        #pragma omp parallel for
-        for(int i=0 ; i < NN * batch_size; i++)
-           std::memcpy(&a[i * EmbeddingSize], B1[layer], EmbeddingSize * sizeof(float) );
+            cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+                        EmbeddingSize, EmbeddingSize * HeadsCount, 1.0, sa, EmbeddingSize * HeadsCount, TD1[layer],
+                        EmbeddingSize, 1.0, a, EmbeddingSize);
 
-        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
-                    EmbeddingSize, EmbeddingSize * HeadsCount, 1.0, sa, EmbeddingSize * HeadsCount, TD1[layer],
-                    EmbeddingSize, 1.0, a, EmbeddingSize);
+            cblas_saxpy(NN * EmbeddingSize * batch_size, 1.0, smiles_embedding, 1, a, 1);
 
-        cblas_saxpy(NN * EmbeddingSize * batch_size, 1.0, smiles_embedding, 1, a, 1);
-
-        #pragma omp parallel for collapse(2)
-        for(int i_mol=0; i_mol < batch_size; i_mol++)
-        for(int i= 0; i< NN; ++i)
-        {
-
-            float s1 = 0;
-            float s2 = 0;
-
-            float *s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
-            for(int j=0; j< EmbeddingSize; j++)
+            #pragma omp parallel for collapse(2)
+            for(int i_mol=0; i_mol < batch_size; i_mol++)
+            for(int i= 0; i< NN; ++i)
             {
-                 s2 += (*s) * (*s);
-                 s1 += *s++;
+
+                float s1 = 0;
+                float s2 = 0;
+
+                float *s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
+                for(int j=0; j< EmbeddingSize; j++)
+                {
+                     s2 += (*s) * (*s);
+                     s1 += *s++;
+                }
+
+                float Mean = s1 / EmbeddingSize;
+                s1 = sqrt(s2 - s1 * Mean)/8.0 + 1e-6;
+
+                for(int j= EmbeddingSize -1; j>=0; j--)
+                {
+                    s--;
+                    *s = (*s - Mean) * gamma1[layer][j] / s1 + beta1[layer][j];
+                }
             }
 
-            float Mean = s1 / EmbeddingSize;
-            s1 = sqrt(s2 - s1 * Mean)/8.0 + 1e-6;
+            cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+                        HiddenSize, EmbeddingSize, 1.0, a, EmbeddingSize, w1[layer],
+                        HiddenSize, 0.0, q, HiddenSize);
 
-            for(int j= EmbeddingSize -1; j>=0; j--)
+            #pragma omp parallel for collapse(2)
+            for(int i_mol=0; i_mol < batch_size; i_mol++)
+            for(int i= 0; i< NN; ++i)
             {
-                s--;
-                *s = (*s - Mean) * gamma1[layer][j] / s1 + beta1[layer][j];
+                float * p = &b1[layer][0];
+                float * s = &q[i_mol * NN * HiddenSize + i*HiddenSize];
+
+                for(int j=0; j < HiddenSize; j++)
+                {
+                    *s += *p++;
+                    if(*s < 0) *s = 0.0;
+                    s++;
+                }
+                std::memcpy(&k[i_mol * NN * EmbeddingSize + i* EmbeddingSize], b2[layer],
+                        EmbeddingSize * sizeof(float));
             }
-        }
 
-        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
-                    HiddenSize, EmbeddingSize, 1.0, a, EmbeddingSize, w1[layer],
-                    HiddenSize, 0.0, q, HiddenSize);
+            cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
+                        EmbeddingSize, HiddenSize, 1.0, q, HiddenSize, w2[layer],
+                        EmbeddingSize, 1.0, k, EmbeddingSize);
 
-        #pragma omp parallel for collapse(2)
-        for(int i_mol=0; i_mol < batch_size; i_mol++)
-        for(int i= 0; i< NN; ++i)
-        {
-            float * p = &b1[layer][0];
-            float * s = &q[i_mol * NN * HiddenSize + i*HiddenSize];
+            cblas_saxpy(NN * EmbeddingSize * batch_size, 1.0, k, 1, a, 1);
 
-            for(int j=0; j < HiddenSize; j++)
+            #pragma omp parallel for collapse(2)
+            for(int i_mol=0; i_mol < batch_size; i_mol++)
+            for(int i=0; i<NN; ++i)
             {
-                *s += *p++;
-                if(*s < 0) *s = 0.0;
-                s++;
-            }
-            std::memcpy(&k[i_mol * NN * EmbeddingSize + i* EmbeddingSize], b2[layer],
-                    EmbeddingSize * sizeof(float));
-        }
+                float s1 = 0;
+                float s2 = 0;
 
-        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, NN * batch_size,
-                    EmbeddingSize, HiddenSize, 1.0, q, HiddenSize, w2[layer],
-                    EmbeddingSize, 1.0, k, EmbeddingSize);
+                float * s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
+                for(int j=0; j< EmbeddingSize; j++)
+                {
+                     s2 += (*s) * (*s);
+                     s1 +=  *s++;
+                }
 
-        cblas_saxpy(NN * EmbeddingSize * batch_size, 1.0, k, 1, a, 1);
+                float Mean = s1 / EmbeddingSize;
+                s1 = sqrt(s2 - s1 * Mean)/8.0 + 1e-6;
 
-        #pragma omp parallel for collapse(2)
-        for(int i_mol=0; i_mol < batch_size; i_mol++)
-        for(int i=0; i<NN; ++i)
-        {
-            float s1 = 0;
-            float s2 = 0;
-
-            float * s = &a[i_mol * EmbeddingSize * NN + i*EmbeddingSize];
-            for(int j=0; j< EmbeddingSize; j++)
-            {
-                 s2 += (*s) * (*s);
-                 s1 +=  *s++;
+                for(int j= EmbeddingSize-1;j >=0; j--)
+                     smiles_embedding[i_mol * NN * EmbeddingSize + i*EmbeddingSize + j] = (*--s - Mean) *
+                             gamma2[layer][j] / s1 + beta2[layer][j];
             }
 
-            float Mean = s1 / EmbeddingSize;
-            s1 = sqrt(s2 - s1 * Mean)/8.0 + 1e-6;
+        };
 
-            for(int j= EmbeddingSize-1;j >=0; j--)
-                 smiles_embedding[i_mol * NN * EmbeddingSize + i*EmbeddingSize + j] = (*--s - Mean) *
-                         gamma2[layer][j] / s1 + beta2[layer][j];
-        }
-
-    };
-
-    AttentionLayer(0);
-    AttentionLayer(1);
-    AttentionLayer(2);
+        AttentionLayer(0);
+        AttentionLayer(1);
+        AttentionLayer(2);
+    }
+    else
+        smiles_embedding = embeddings;
 
     //smile_embedding variable contains the final embeddings of the molecule
     //next step is convolutional filters
@@ -524,6 +552,21 @@ TransformerModel::ResultValue TransformerModel::predict(std::set < std::string >
     }
     fin.size = batch_size;
     return fin;
+}
+
+float * TransformerModel::getSmilesEmbeddings()
+{
+    return smiles_embedding;
+}
+
+void TransformerModel::setSmilesEmbeddings(float *s)
+{
+    smiles_embedding = s;
+}
+
+const std::string &TransformerModel::getProp() const
+{
+    return m_prop;
 }
 
 bool GetRandomSmiles(const std::string & smiles, 

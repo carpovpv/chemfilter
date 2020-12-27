@@ -31,6 +31,8 @@
 bool GetRandomSmiles(const std::string & smiles, 
                      std::set<std::string> & mols, 
                      int &max_n);
+//< 30 points
+float student(int freedom);
 
 class TransformerModel
 {
@@ -49,7 +51,7 @@ public:
     static constexpr char const * vocab = " ^#%()+-./0123456789=@ABCDEFGHIKLMNOPRSTVXYZ[\\]abcdefgilmnoprstuy$";
     static const int vocab_length = 66;  //The length of the vocabulary string.
     
-    TransformerModel(const char * fname);
+    TransformerModel(const char * fname, const char * prop = nullptr);
     ~TransformerModel();
 
     struct ResultValue
@@ -65,12 +67,20 @@ public:
     };
 
     bool isGood() const;
-    ResultValue predict(std::set<std::string> & mols, int max_n);
+    ResultValue predict(std::set<std::string> & mols, int max_n,
+                        float * embeddings = nullptr);
+
+    float * getSmilesEmbeddings();
+    void setSmilesEmbeddings(float * s);
+
+    const std::string & getProp() const;
 
 private:
 
+    std::string m_prop;
+
     //Mapping from a symbol to wordId.
-    std::map<char, int> char_to_ix;
+    std::map<char, int> char_to_ix;    
 
     int left_mask_id [ MaxBatchSize ];
     int x[MaxBatchSize * (MaxSmilesSize + ConvOffset)];
@@ -124,11 +134,8 @@ private:
         int n_filter;
         float * conv;    // W
         float * bias;    // B
-        int start;        // Start position of this filter in the lc array.
+        int start;       // Start position of this filter in the lc array.
     };
-
-    float *ccc;
-
 };
 
 #endif // TRANSFORMERMODEL_H
