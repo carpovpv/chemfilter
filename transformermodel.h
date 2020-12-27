@@ -127,6 +127,9 @@ private:
     //The final output;
     float * Out_W;
     float * Out_B;
+
+    int NN;
+    int batch_size;
     
     struct ConvInfo
     {
@@ -136,6 +139,8 @@ private:
         float * bias;    // B
         int start;       // Start position of this filter in the lc array.
     };
+
+    void AttentionLayer(int layer);
 };
 
 #endif // TRANSFORMERMODEL_H

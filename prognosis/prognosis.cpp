@@ -13,6 +13,14 @@
 
 #include "../transformermodel.h"
 
+std::string to_string(float x)
+{
+    char buf[256];
+    sprintf(buf, "%g", x);
+
+    return std::string(buf);
+}
+
 void calcMeanAndError(const std::vector<float> &data,
                       float * avg,
                       float * err)
@@ -20,10 +28,10 @@ void calcMeanAndError(const std::vector<float> &data,
     float x2 = 0.0;
     *avg = 0.0;
 
-    for( float a : data)
+    for(uint i=0; i< data.size(); i++)
     {
-        x2 += a * a;
-        *avg += a;
+        x2 += data[i] * data[i];
+        *avg += data[i];
     }
 
     const int N = data.size();
@@ -111,14 +119,14 @@ int main()
         if(line[len-1] == '\n')
             line[len-1] = '\0';
 
-        for(auto it = R.begin(); it!= R.end(); ++it)
+        for(std::map<std::string, std::vector<float> >::iterator it = R.begin(); it!= R.end(); ++it)
             it->second.clear();
 
         int n = 0;
         std::set<std::string> mols;
         if(GetRandomSmiles(line, mols, n))
         {
-            auto res = vm[0]->predict(mols, n);
+            TransformerModel::ResultValue res = vm[0]->predict(mols, n);
             if(res.valid)
             {
                 std::vector<float> & d = R[vm[0]->getProp()];
@@ -128,7 +136,7 @@ int main()
                 float * embeddings = vm[0]->getSmilesEmbeddings();
                 for(uint m=1; m< vm.size(); m++)
                 {
-                    auto res = vm[m]->predict(mols, n, embeddings);
+                    TransformerModel::ResultValue res = vm[m]->predict(mols, n, embeddings);
                     if(res.valid)
                     {
                         std::vector<float> & d = R[vm[m]->getProp()];
@@ -140,7 +148,7 @@ int main()
 
             bool first = true;
             std::string json("{");
-            for(auto it = R.begin(); it!= R.end(); ++it)
+            for(std::map<std::string, std::vector<float> >::iterator it = R.begin(); it!= R.end(); ++it)
             {
                 float err, avg;
                 calcMeanAndError(it->second, &avg, &err);
@@ -148,9 +156,9 @@ int main()
                 if(!first) json += ",";
 
                 json += "\"" + it->first + "\": ";
-                json += std::to_string(avg) + ",";
+                json += to_string(avg) + ",";
                 json += "\"" + it->first + "_d\": ";
-                json += std::to_string(err);
+                json += to_string(err);
 
 
                 first = false;
