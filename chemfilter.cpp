@@ -13,6 +13,10 @@
 #include <QInputDialog>
 #include <QEventLoop>
 #include <QMenu>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QDockWidget>
+#include <QListWidget>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -29,6 +33,7 @@
 #include <QTableWidgetItem>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTreeWidget>
 
 #include <QScriptEngine>
 
@@ -41,6 +46,7 @@
 #include "lap_checkbox.h"
 #include "newcolumn.h"
 #include "enterresult.h"
+#include "histwidget.h"
 
 using namespace OpenBabel;
 
@@ -86,25 +92,14 @@ ChemFilter::ChemFilter(QWidget *parent) :
 
     ui->btnExportSDF->setMenu(exportMenu);
 
+    createDockWindows();
+
     clearStats();
-    LoadModels();
 
     connect(ui->btnOpenSdf, SIGNAL(clicked()),
             this, SLOT(LoadSdf()));
     connect(ui->actExit, SIGNAL(triggered()),
             this, SLOT(close()));
-
-    connect(ui->btnCalculate, SIGNAL(clicked(bool)),
-            this, SLOT(calculate()));
-    connect(ui->btnStopCalc, SIGNAL(clicked(bool)),
-            this, SLOT(stopCalc()));
-
-    connect(ui->btnAddColumn, SIGNAL(clicked()),
-            this, SLOT(addNewColumn()));
-    connect(ui->btnDelete, SIGNAL(clicked(bool)),
-            this, SLOT(deleteColumn()));
-    connect(ui->btnStats, SIGNAL(clicked(bool)),
-            this, SLOT(analyzeProperty()));
 
     connect(ui->btnDown, SIGNAL(clicked(bool)),
             this, SLOT(setDown()));
@@ -201,7 +196,7 @@ void ChemFilter::LoadModels()
                par = catItems[inf.category];
             else
             {
-                par = new QTreeWidgetItem(ui->lstModels, {inf.category});
+                par = new QTreeWidgetItem(lstModels, {inf.category});
                 catItems[inf.category] = par;
             }
 
@@ -214,8 +209,8 @@ void ChemFilter::LoadModels()
 
     }
 
-    ui->lstModels->sortItems(0, Qt::AscendingOrder); 
-    ui->lstModels->expandAll();
+    lstModels->sortItems(0, Qt::AscendingOrder);
+    lstModels->expandAll();
 
     qDebug() << "Loaded " << models.size() << " models.";
 
@@ -247,6 +242,105 @@ void ChemFilter::LoadModels()
     connect(ui->cmbFilter, SIGNAL(currentIndexChanged(int)),
             this, SLOT(loadWhere()));
 
+}
+
+void ChemFilter::createDockWindows()
+{
+    createDockModels();
+    createDockColumns();
+}
+
+void ChemFilter::createDockModels()
+{
+    QDockWidget * dockModels = new QDockWidget(tr("QSAR models"), this);
+    dockModels->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    QWidget * frame = new QWidget(dockModels);
+
+    QLabel * lbl = new QLabel(tr("Available Models"), frame);
+
+    btnCalculate = new QPushButton(QIcon(":/images/edit.png"), tr("Run"), frame);
+    connect(btnCalculate, &QPushButton::clicked,
+            this, &ChemFilter::calculate);
+
+    btnStopCalc = new QPushButton(QIcon(":/images/no.png"), tr("Stop"), frame);
+    connect(btnStopCalc, &QPushButton::clicked, this, &ChemFilter::stopCalc);
+
+    lstModels = new QTreeWidget(frame);
+    lstModels->setColumnCount(1);
+    lstModels->setHeaderLabels({"Category / property"});
+
+    prg = new QProgressBar(frame);
+    prg->setMinimum(0);
+    prg->setMaximum(100);
+    prg->setValue(0);
+
+    QHBoxLayout * box_top = new QHBoxLayout();
+    box_top->addWidget(lbl);
+    box_top->addStretch(1);
+    box_top->addWidget(btnCalculate);
+
+    QHBoxLayout * box_bottom = new QHBoxLayout();
+    box_bottom->addWidget(prg);
+    box_bottom->addWidget(btnStopCalc);
+
+    QVBoxLayout * vbox = new QVBoxLayout(frame);
+    vbox->addLayout(box_top);
+    vbox->addWidget(lstModels);
+    vbox->addLayout(box_bottom);
+
+    dockModels->setWidget(frame);
+
+    LoadModels();
+    addDockWidget(Qt::LeftDockWidgetArea, dockModels);
+}
+
+void ChemFilter::createDockColumns()
+{
+    QDockWidget * dockColumns = new QDockWidget(tr("Dataset Properties"), this);
+    dockColumns->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    QWidget * frame = new QWidget(dockColumns);
+
+    QLabel * lbl = new QLabel(tr("Properties"), frame);
+
+    btnAddColumn = new QToolButton(frame);
+    btnAddColumn->setIcon(QIcon(":/images/add.png"));
+    connect(btnAddColumn, &QToolButton::clicked,
+            this, &ChemFilter::addNewColumn);
+
+    btnStats = new QToolButton(frame);
+    btnStats->setIcon(QIcon(":/images/calc.png"));
+    connect(btnStats, &QToolButton::clicked, this, &ChemFilter::analyzeProperty);
+
+    btnDelete = new QToolButton(frame);
+    btnDelete->setIcon(QIcon(":/images/o.png"));
+    connect(btnDelete, &QToolButton::clicked, this, &ChemFilter::deleteColumn);
+
+    lstCols = new QListWidget(frame);
+    lstCols->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+    lblProperty = new QLabel(frame);
+    lblInfo = new QLabel(frame);
+    wdgHist = new HistWidget(frame);
+
+    QHBoxLayout * box_top = new QHBoxLayout();
+    box_top->addWidget(lbl);
+    box_top->addStretch(1);
+    box_top->addWidget(btnAddColumn);
+    box_top->addWidget(btnStats);
+    box_top->addWidget(btnDelete);
+
+    QVBoxLayout * vbox = new QVBoxLayout(frame);
+    vbox->addLayout(box_top);
+    vbox->addWidget(lstCols);
+    vbox->addWidget(lblProperty);
+    vbox->addWidget(lblInfo);
+    vbox->addWidget(wdgHist);
+
+    dockColumns->setWidget(frame);
+
+    addDockWidget(Qt::RightDockWidgetArea, dockColumns);
 }
 
 void ChemFilter::LoadSdf()
@@ -287,15 +381,15 @@ void ChemFilter::LoadSdf()
     ui->tblData->setColumnWidth(0, 30);
     ui->tblData->setColumnWidth(1, 250);
 
-    ui->lstCols->clear();
+    lstCols->clear();
     for(int i = 3; i< mdl->cols.size(); i++)
     {
-        QListWidgetItem *it = new QListWidgetItem(mdl->cols[i], ui->lstCols);
+        QListWidgetItem *it = new QListWidgetItem(mdl->cols[i], lstCols);
         it->setCheckState(Qt::Checked);
         it->setData(Qt::UserRole, i);
     }
 
-    connect(ui->lstCols, SIGNAL(itemChanged(QListWidgetItem*)),
+    connect(lstCols, SIGNAL(itemChanged(QListWidgetItem*)),
             this, SLOT(itemChanged(QListWidgetItem *)));
 
     int y = fileName.lastIndexOf("/");
@@ -434,13 +528,13 @@ void ChemFilter::calculate()
         return;
     }
 
-    ui->btnCalculate->setEnabled(false);
-    ui->btnDelete->setEnabled(false);
+    btnCalculate->setEnabled(false);
+    btnDelete->setEnabled(false);
 
     QList<QTreeWidgetItem *> items;
-    for( int i = 0; i < ui->lstModels->topLevelItemCount(); ++i )
+    for( int i = 0; i < lstModels->topLevelItemCount(); ++i )
     {
-       QTreeWidgetItem *item = ui->lstModels->topLevelItem( i );
+       QTreeWidgetItem *item = lstModels->topLevelItem( i );
        for(int j=0; j < item->childCount(); j++)
        {
            QTreeWidgetItem * child = item->child(j);
@@ -458,12 +552,12 @@ void ChemFilter::calculate()
 
     if(items.size() == 0)
     {
-        ui->btnCalculate->setEnabled(true);
-        ui->btnDelete->setEnabled(true);
+        btnCalculate->setEnabled(true);
+        btnDelete->setEnabled(true);
         return;
     }
 
-    ui->prg->setMaximum( items.size() * mdl->rowCount());
+    prg->setMaximum( items.size() * mdl->rowCount());
 
     long cnt = 0;
     m_stop = false;
@@ -483,18 +577,18 @@ void ChemFilter::calculate()
                                   "There is already a column with this name.");
 
             cnt += mdl->rowCount();
-            ui->prg->setValue(cnt);
+            prg->setValue(cnt);
             continue;
         }
 
         int il = mdl->addColumnModel(property);
         int ih = mdl->addColumnModel(property_error);
 
-        QListWidgetItem *it = new QListWidgetItem(property, ui->lstCols);
+        QListWidgetItem *it = new QListWidgetItem(property, lstCols);
         it->setCheckState(Qt::Checked);
         it->setData(Qt::UserRole, il);
 
-        it = new QListWidgetItem(property_error, ui->lstCols);
+        it = new QListWidgetItem(property_error, lstCols);
         it->setCheckState(Qt::Checked);
         it->setData(Qt::UserRole, ih);
 
@@ -513,10 +607,10 @@ void ChemFilter::calculate()
         {
             QMessageBox::critical(this, "Error", "Damage files or not enough memory!");
 
-            ui->btnCalculate->setEnabled(true);
-            ui->btnDelete->setEnabled(true);
+            btnCalculate->setEnabled(true);
+            btnDelete->setEnabled(true);
 
-            ui->prg->setMaximum( items.size() * mdl->rowCount());
+            prg->setMaximum( items.size() * mdl->rowCount());
         }
         else
         {
@@ -566,7 +660,7 @@ void ChemFilter::calculate()
                 }
 
                 cnt++;
-                ui->prg->setValue(cnt);
+                prg->setValue(cnt);
                 qApp->processEvents();
 
                 if(m_stop)
@@ -583,8 +677,8 @@ void ChemFilter::calculate()
 
 fin:
 
-    ui->btnCalculate->setEnabled(true);
-    ui->btnDelete->setEnabled(true);
+    btnCalculate->setEnabled(true);
+    btnDelete->setEnabled(true);
 }
 
 void ChemFilter::itemChanged(QListWidgetItem *it)
@@ -609,7 +703,7 @@ void ChemFilter::addNewColumn()
     {
         QString varNam = a->getVariable();
 
-        QListWidgetItem *it = new QListWidgetItem(varNam, ui->lstCols);
+        QListWidgetItem *it = new QListWidgetItem(varNam, lstCols);
         it->setCheckState(Qt::Checked);
         it->setData(Qt::UserRole, mdl->cols.size()-1);
 
@@ -626,7 +720,7 @@ void ChemFilter::deleteColumn()
         return;
     }
 
-    QList<QListWidgetItem*> items = ui->lstCols->selectedItems();
+    QList<QListWidgetItem*> items = lstCols->selectedItems();
     if(items.size() == 0)
     {
         QMessageBox::warning(this, "Warning", "Please, select an item in the list widget (top right) "
@@ -656,8 +750,8 @@ void ChemFilter::deleteColumn()
         delete items[i];
 
     //restore right order of cols
-    for(int i=0; i< ui->lstCols->count(); i++)
-        ui->lstCols->item(i)->setData(Qt::UserRole, i+3);
+    for(int i=0; i< lstCols->count(); i++)
+        lstCols->item(i)->setData(Qt::UserRole, i+3);
 }
 
 void ChemFilter::setUp()
@@ -738,8 +832,8 @@ void ChemFilter::stopCalc()
 
 void ChemFilter::clearStats()
 {
-    ui->lblInfo->clear();
-    ui->lblProperty->clear();
+    lblInfo->clear();
+    lblProperty->clear();
 }
 
 void ChemFilter::analyzeProperty()
@@ -753,7 +847,7 @@ void ChemFilter::analyzeProperty()
         return;
     }
 
-    QListWidgetItem * item = ui->lstCols->currentItem();
+    QListWidgetItem * item = lstCols->currentItem();
     if(item == nullptr)
     {
         QMessageBox::warning(this, "Warning", "Please select a column first.");
@@ -774,7 +868,7 @@ void ChemFilter::analyzeProperty()
             d.push_back(v);
     }
 
-    ui->lblProperty->setText(item->text());
+    lblProperty->setText(item->text());
 
     const int cnt = d.size();
     if(cnt > 0)
@@ -785,10 +879,10 @@ void ChemFilter::analyzeProperty()
          if (min == nullptr || max == nullptr)
              return;
 
-         ui->lblProperty->setText(item->text() + " loaded <b>" + QString::number(cnt));
-         ui->lblInfo->setText(tr("Min <b>%2</b>, Max <b>%3</b>").arg(*min).arg(*max));
+         lblProperty->setText(item->text() + " loaded <b>" + QString::number(cnt));
+         lblInfo->setText(tr("Min <b>%2</b>, Max <b>%3</b>").arg(*min).arg(*max));
 
-         ui->wdgHist->setData(&d, *min, *max, 10);
+         wdgHist->setData(&d, *min, *max, 10);
     }
 
 }

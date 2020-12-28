@@ -28,6 +28,12 @@ class QListWidgetItem;
 class LAP_CheckBoxDelegate;
 class MolDelegate;
 class QScriptEngine;
+class QPushButton;
+class QTreeWidget;
+class QProgressBar;
+class QToolButton;
+class QListWidget;
+class HistWidget;
 
 struct Interval
 {
@@ -55,6 +61,8 @@ public:
 
     void printInfo()
     {
+        return;
+
         qDebug() << "Category: " << category;
         qDebug() << "Name: " << name;
         qDebug() << "Number of intervals: " << intervals.size();
@@ -102,6 +110,24 @@ private:
     volatile bool m_stop;
 
     void LoadModels();
+
+
+    void createDockWindows();
+
+    QPushButton *btnCalculate;
+    QTreeWidget *lstModels;
+    QProgressBar *prg;
+    QPushButton *btnStopCalc;
+    void createDockModels();
+
+    QToolButton * btnAddColumn;
+    QToolButton * btnStats;
+    QToolButton * btnDelete;
+    QListWidget * lstCols;
+    QLabel * lblProperty;
+    QLabel * lblInfo;
+    HistWidget * wdgHist;
+    void createDockColumns();
 
 private slots:
 
