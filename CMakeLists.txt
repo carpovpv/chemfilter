@@ -48,17 +48,5 @@ QT5_WRAP_UI(UIS ${UI})
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/prognosis)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-   add_executable(chemfilter WIN32 ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES})
-   target_link_libraries(chemfilter Qt5::Widgets Qt5::Core Qt5::Sql Qt5::Network Qt5::Script ${OPENBABEL3_LIBRARIES} ${BLAS_LIBRARIES})
-endif(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-   add_executable(chemfilter ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES})
-   target_link_libraries(chemfilter Qt5::Widgets Qt5::Core Qt5::Sql Qt5::Network Qt5::Script ${OPENBABEL3_LIBRARIES} ${BLAS_LIBRARIES})
-endif(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-   add_executable(chemfilter ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES})
-   target_link_libraries(chemfilter Qt5::Widgets Qt5::Core Qt5::Sql Qt5::Network Qt5::Script ${OPENBABEL3_LIBRARIES} ${BLAS_LIBRARIES})
-endif(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+add_executable(chemfilter WIN32 ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES})
+target_link_libraries(chemfilter Qt5::Widgets Qt5::Core Qt5::Sql Qt5::Network Qt5::Script ${OPENBABEL3_LIBRARIES} ${BLAS_LIBRARIES})
