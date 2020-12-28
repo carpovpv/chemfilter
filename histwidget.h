@@ -15,6 +15,8 @@ public:
                  double max,
                  double interval);
 
+    QSize sizeHint();
+
 protected:
     void paintEvent(QPaintEvent *);
 

@@ -25,7 +25,7 @@
 #include <cblas.h>
 
 //Generate a batch of SMILES corresponding to the molecule.
-//If the mol is out of vocabulary, or some problem in RDKIT occured
+//If the mol is out of vocabulary, or some problem occured
 //the function returns false.
 
 bool GetRandomSmiles(const std::string & smiles, 

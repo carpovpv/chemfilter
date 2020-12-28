@@ -5,7 +5,7 @@
 
 HistWidget::HistWidget(QWidget *parent)
 {
-
+    setMinimumHeight(150);
 }
 
 void HistWidget::setData(QVector<double> *data,
@@ -41,6 +41,11 @@ void HistWidget::setData(QVector<double> *data,
         if(m_h[i] > y_max) y_max = m_h[i];
 
     repaint();
+}
+
+QSize HistWidget::sizeHint()
+{
+    return QSize(100, 150);
 }
 
 void HistWidget::paintEvent(QPaintEvent *)
