@@ -49,7 +49,8 @@ TransformerModel::TransformerModel(const char *fname, const char *prop)
     q   = NULL;
     mdl = NULL;
 
-    m_prop = prop;
+    if(prop)
+       m_prop = prop;
 
     FILE  * fp = fopen(fname, "rb");
     if(fp == NULL)
@@ -103,7 +104,7 @@ TransformerModel::TransformerModel(const char *fname, const char *prop)
         return;
     }
  
-    fclose(fp);
+    fclose(fp);    
 
     float * pdata = (float *)data;
     classification = (pdata[0] == 1.0);

@@ -599,7 +599,6 @@ void ChemFilter::calculate()
             TransformerModel * sol = new TransformerModel(models[idx].fnames[f].toLocal8Bit().data());
             if(!sol->isGood())
                 continue;
-
             mdls.push_back(sol);
         }
 
