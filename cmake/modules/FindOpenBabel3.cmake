@@ -7,7 +7,7 @@
 #  OPENBABEL3_LIBRARIES - Link these to use Open Babel
 #  IF OPENBABEL_DIR is defined, will look there first
 
-#from 
+#from https://github.com/OpenMD/OpenMD/blob/master/cmake/modules/FindOpenBabel3.cmake
 
 if(OPENBABEL3_INCLUDE_DIR AND OPENBABEL3_LIBRARIES)
   # in cache already or user-specified
