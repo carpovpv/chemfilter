@@ -28,7 +28,7 @@ void calcMeanAndError(const std::vector<float> &data,
     float x2 = 0.0;
     *avg = 0.0;
 
-    for(uint i=0; i< data.size(); i++)
+    for(int i=0; i< data.size(); i++)
     {
         x2 += data[i] * data[i];
         *avg += data[i];
@@ -134,7 +134,7 @@ int main()
                     d.push_back(res.value[i]);
 
                 float * embeddings = vm[0]->getSmilesEmbeddings();
-                for(uint m=1; m< vm.size(); m++)
+                for(int m=1; m< vm.size(); m++)
                 {
                     TransformerModel::ResultValue res = vm[m]->predict(mols, n, embeddings);
                     if(res.valid)
@@ -172,7 +172,7 @@ int main()
 
     }
 
-    for(uint i=0; i< vm.size(); i++)
+    for(int i=0; i< vm.size(); i++)
        delete vm[i];
 
     vm.clear();

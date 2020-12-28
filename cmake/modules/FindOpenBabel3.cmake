@@ -75,7 +75,7 @@ else()
 
   if(OPENBABEL3_INCLUDE_DIR AND OPENBABEL3_LIBRARIES)
     set(OPENBABEL3_FOUND TRUE)
-message("Setting openbabel found ${OPENBABEL3_FOUND}")
+message(STATUS "Setting openbabel found ${OPENBABEL3_FOUND}")
   endif()
 
   mark_as_advanced(OPENBABEL3_INCLUDE_DIR OPENBABEL3_LIBRARIES)
