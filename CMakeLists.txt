@@ -33,6 +33,9 @@ SET (SOURCES delegate.cpp qsartablemodel.cpp newcolumn.cpp
              style/qstylehelper.cpp histwidget.cpp enterresult.cpp heighttextedit.cpp
              )
 
+SET(RCFILE
+    info.rc)
+
 SET ( UI chemfilter.ui newcolumn.ui enterresult.ui)
 
 set(RESOURCES resources.qrc)
@@ -42,6 +45,6 @@ QT5_WRAP_UI(UIS ${UI})
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/prognosis)
 
-add_executable(chemfilter WIN32 ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES})
+add_executable(chemfilter WIN32 ${HEADERS} ${SOURCES} ${UIS} ${QRC_SOURCES} ${RCFILE})
 target_link_libraries(chemfilter Qt5::Widgets Qt5::Core Qt5::Sql Qt5::Network Qt5::Script ${OPENBABEL3_LIBRARIES} ${OpenBLAS_LIB})
 
