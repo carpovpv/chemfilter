@@ -11,7 +11,7 @@ class QsarSortModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    QsarSortModel(QObject *parent, QScriptEngine *eng);
+    QsarSortModel(QObject *parent);
 
     void setNewScript(const QString &t, const QMap<QString, int> & maps);
 

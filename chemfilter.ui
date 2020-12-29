@@ -17,8 +17,30 @@
    <iconset resource="resources.qrc">
     <normaloff>:/images/rulis.png</normaloff>:/images/rulis.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QTreeView {
+show-decoration-selected: 1;
+}
+QTreeView::item:Selected {
+border: 1px solid #567dbc;
+}
+QTreeView::item:selected:active{
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+}
+QTreeView::item:selected:!active {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);
+}
+QTreeView::item {
+border:1px solid #d9d9d9;
+border-bottom-color: #d9d9d9;
+}
+QTableView {
+selection-background-color:#567dbc;
+}
+QTreeView::item:has-children {background:#c1d5ff;}</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_13">
+   <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
@@ -175,77 +197,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="widget_5" native="true">
-       <layout class="QGridLayout" name="gridLayout_11">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_10">
-          <item row="1" column="0" colspan="2">
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Filtering</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="4">
-             <widget class="HeightTextEdit" name="txtFilter">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QToolButton" name="btnFilter">
-              <property name="toolTip">
-               <string>Perform advanced filtering of the molceules based on the filter below.</string>
-              </property>
-              <property name="text">
-               <string>Filter</string>
-              </property>
-              <property name="icon">
-               <iconset resource="resources.qrc">
-                <normaloff>:/images/ok.png</normaloff>:/images/ok.png</iconset>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="cmbFilter"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -303,13 +254,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>HeightTextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header>heighttextedit.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

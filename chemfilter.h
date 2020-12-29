@@ -34,6 +34,8 @@ class QProgressBar;
 class QToolButton;
 class QListWidget;
 class HistWidget;
+class QComboBox;
+class HeightTextEdit;
 
 struct Interval
 {
@@ -100,7 +102,6 @@ private:
     QsarSortModel * sortModel;
     LAP_CheckBoxDelegate * checkBoxDelegate;
     MolDelegate * molDelegate;
-    QScriptEngine * engine;
 
     QVector<class ModelInfo> models;
     QMap<QString, QTreeWidgetItem *> catItems;
@@ -118,6 +119,8 @@ private:
     QTreeWidget *lstModels;
     QProgressBar *prg;
     QPushButton *btnStopCalc;
+    QToolButton *btnSelectAllModels;
+    QToolButton *btnDeselectAllModels;
     void createDockModels();
 
     QToolButton * btnAddColumn;
@@ -128,6 +131,12 @@ private:
     QLabel * lblInfo;
     HistWidget * wdgHist;
     void createDockColumns();
+
+    QToolButton *btnFilter;
+    QComboBox *cmbFilter;
+    HeightTextEdit * txtFilter;
+
+    void createDockRule();
 
 private slots:
 
@@ -154,6 +163,9 @@ private slots:
     void save();
 
     void loadWhere();
+
+    void selectAllModels();
+    void deselectAllModels();
 };
 
 #endif // CHEMFILTER_H

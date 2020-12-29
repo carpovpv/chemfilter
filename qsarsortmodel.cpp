@@ -1,14 +1,19 @@
 #include "qsarsortmodel.h"
 #include <QDebug>
 
-QsarSortModel::QsarSortModel(QObject *parent, QScriptEngine *eng) : QSortFilterProxyModel(parent)
+QsarSortModel::QsarSortModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
-    engine = eng;
+    engine = nullptr;
     expNumber.setPattern("(\\d+)");
 }
 
 void QsarSortModel::setNewScript(const QString &t, const QMap<QString, int> & maps)
 {
+    if(engine)
+        delete engine;
+
+    engine = new QScriptEngine(this);
+
     script = t;
     m_maps = maps;
 

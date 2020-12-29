@@ -7,13 +7,13 @@
 
 #include <QDebug>
 
-NewColumn::NewColumn(QWidget *parent, QsarTableModel *mdl, QScriptEngine *eng) :
+NewColumn::NewColumn(QWidget *parent, QsarTableModel *mdl) :
     QDialog(parent),
     ui(new Ui::NewColumn)
 {
     ui->setupUi(this);
     m_mdl = mdl;
-    engine = eng;
+    engine = new QScriptEngine(this);
 
     connect(ui->btnOk, SIGNAL(clicked(bool)),
             this, SLOT(ok()));

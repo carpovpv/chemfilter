@@ -17,6 +17,7 @@
 #include <QPushButton>
 #include <QDockWidget>
 #include <QListWidget>
+#include <QComboBox>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -47,6 +48,7 @@
 #include "newcolumn.h"
 #include "enterresult.h"
 #include "histwidget.h"
+#include "heighttextedit.h"
 
 using namespace OpenBabel;
 
@@ -56,7 +58,6 @@ ChemFilter::ChemFilter(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    engine = new QScriptEngine(this);
 
     stsInfo = new QLabel(this);
     stsInfo->setText("Ready to use!");
@@ -73,7 +74,7 @@ ChemFilter::ChemFilter(QWidget *parent) :
     QThread *thread = new ClearThread();
     thread->start();
 
-    sortModel  = new QsarSortModel(this, engine);
+    sortModel  = new QsarSortModel(this);
     checkBoxDelegate = new LAP_CheckBoxDelegate(this);
     molDelegate = new MolDelegate(this);
 
@@ -93,6 +94,7 @@ ChemFilter::ChemFilter(QWidget *parent) :
     ui->btnExportSDF->setMenu(exportMenu);
 
     createDockWindows();
+    LoadModels();
 
     clearStats();
 
@@ -105,9 +107,6 @@ ChemFilter::ChemFilter(QWidget *parent) :
             this, SLOT(setDown()));
     connect(ui->btnUp, SIGNAL(clicked(bool)),
             this, SLOT(setUp()));
-
-    connect(ui->btnFilter, SIGNAL(clicked(bool)),
-            this, SLOT(filter()));
 
     connect(ui->tblData, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(enterValue(QModelIndex)));
@@ -212,9 +211,7 @@ void ChemFilter::LoadModels()
     lstModels->sortItems(0, Qt::AscendingOrder);
     lstModels->expandAll();
 
-    qDebug() << "Loaded " << models.size() << " models.";
-
-    ui->cmbFilter->addItem("", QString());
+    cmbFilter->addItem("", QString());
     for(auto it = cnts.begin(); it != cnts.end(); it++)
     {
         if(it.value() == models.size())
@@ -235,11 +232,11 @@ void ChemFilter::LoadModels()
                 }
             }
 
-            ui->cmbFilter->addItem(QString::number(threshold, 'f', 0) + "% of DrugBank", where.join(" && "));
+            cmbFilter->addItem(QString::number(threshold, 'f', 0) + "% of DrugBank", where.join(" && "));
         }
     }
 
-    connect(ui->cmbFilter, SIGNAL(currentIndexChanged(int)),
+    connect(cmbFilter, SIGNAL(currentIndexChanged(int)),
             this, SLOT(loadWhere()));
 
 }
@@ -248,6 +245,7 @@ void ChemFilter::createDockWindows()
 {
     createDockModels();
     createDockColumns();
+    createDockRule();
 }
 
 void ChemFilter::createDockModels()
@@ -260,10 +258,12 @@ void ChemFilter::createDockModels()
     QLabel * lbl = new QLabel(tr("Available Models"), frame);
 
     btnCalculate = new QPushButton(QIcon(":/images/edit.png"), tr("Run"), frame);
+    btnCalculate->setToolTip(tr("Start calculation of models."));
     connect(btnCalculate, &QPushButton::clicked,
             this, &ChemFilter::calculate);
 
     btnStopCalc = new QPushButton(QIcon(":/images/no.png"), tr("Stop"), frame);
+    btnStopCalc->setToolTip(tr("Stop calculation of models."));
     connect(btnStopCalc, &QPushButton::clicked, this, &ChemFilter::stopCalc);
 
     lstModels = new QTreeWidget(frame);
@@ -275,7 +275,22 @@ void ChemFilter::createDockModels()
     prg->setMaximum(100);
     prg->setValue(0);
 
+    btnSelectAllModels = new QToolButton(frame);
+    btnSelectAllModels->setIcon(QIcon(":/images/arrow-down.png"));
+    btnSelectAllModels->setToolTip(tr("Select all models for calculation."));
+    connect(btnSelectAllModels, SIGNAL(clicked(bool)),
+            this, SLOT(selectAllModels()));
+
+    btnDeselectAllModels = new QToolButton(frame);
+    btnDeselectAllModels->setIcon(QIcon(":/images/arrow-up.png"));
+    btnDeselectAllModels->setToolTip("Unselect all models.");
+    connect(btnDeselectAllModels, SIGNAL(clicked(bool)),
+            this, SLOT(deselectAllModels()));
+
     QHBoxLayout * box_top = new QHBoxLayout();
+    box_top->addWidget(btnSelectAllModels);
+    box_top->addWidget(btnDeselectAllModels);
+
     box_top->addWidget(lbl);
     box_top->addStretch(1);
     box_top->addWidget(btnCalculate);
@@ -291,7 +306,6 @@ void ChemFilter::createDockModels()
 
     dockModels->setWidget(frame);
 
-    LoadModels();
     addDockWidget(Qt::LeftDockWidgetArea, dockModels);
 }
 
@@ -325,6 +339,7 @@ void ChemFilter::createDockColumns()
     wdgHist = new HistWidget(frame);
 
     QHBoxLayout * box_top = new QHBoxLayout();
+
     box_top->addWidget(lbl);
     box_top->addStretch(1);
     box_top->addWidget(btnAddColumn);
@@ -341,6 +356,41 @@ void ChemFilter::createDockColumns()
     dockColumns->setWidget(frame);
 
     addDockWidget(Qt::RightDockWidgetArea, dockColumns);
+}
+
+void ChemFilter::createDockRule()
+{
+    QDockWidget * dockRules = new QDockWidget(tr("Rules"), this);
+    dockRules->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
+                               | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    QWidget * frame = new QWidget(dockRules);
+
+    btnFilter = new QToolButton(frame);
+    btnFilter->setIcon(QIcon(":/images/ok.png"));
+    connect(btnFilter, &QToolButton::clicked,
+            this, &ChemFilter::filter);
+
+    txtFilter = new HeightTextEdit(frame);
+    cmbFilter = new QComboBox(frame);
+
+    QLabel *lbl = new QLabel(frame);
+    lbl->setText("Filtering:");
+
+    QHBoxLayout * box_top = new QHBoxLayout();
+    box_top->addWidget(lbl);
+    box_top->addWidget(cmbFilter);
+    box_top->addStretch(1);
+    box_top->addWidget(btnFilter);
+
+    QVBoxLayout * vbox = new QVBoxLayout(frame);
+    vbox->addLayout(box_top);
+    vbox->addWidget(txtFilter);
+
+    dockRules->setWidget(frame);
+
+    addDockWidget(Qt::BottomDockWidgetArea, dockRules);
+
 }
 
 void ChemFilter::LoadSdf()
@@ -543,17 +593,12 @@ void ChemFilter::calculate()
        }
     }
 
-    for(int m =0; m < items.size(); m++)
-    {
-        int idx = items[m]->data(0, Qt::UserRole).toInt();
-        if(models.size() > 0 && idx >=0 && idx < models.size())
-            qDebug() << "\t" << models[idx].name;
-    }
-
     if(items.size() == 0)
     {
         btnCalculate->setEnabled(true);
         btnDelete->setEnabled(true);
+
+        QMessageBox::information(this, tr("Error"), tr("No models selected."));
         return;
     }
 
@@ -697,7 +742,7 @@ void ChemFilter::addNewColumn()
         return;
     }
 
-    NewColumn * a = new NewColumn(this, mdl, engine);
+    NewColumn * a = new NewColumn(this, mdl);
     if(a->exec())
     {
         QString varNam = a->getVariable();
@@ -795,11 +840,12 @@ void ChemFilter::filter()
         return;
     }
 
+    QScriptEngine * engine = new QScriptEngine(this);
     for(int i=0; i< propsInEngine.size(); i++)
         engine->globalObject().setProperty(propsInEngine[i], QScriptValue());
     propsInEngine.clear();
 
-    QString script = ui->txtFilter->toPlainText().trimmed();
+    QString script = txtFilter->toPlainText().trimmed();
     QMap<QString, int> maps;
 
     //test run
@@ -816,8 +862,11 @@ void ChemFilter::filter()
         int line = engine->uncaughtExceptionLineNumber();
         QMessageBox::critical(this, "Error",
                               "Uncaught exception on line " + QString::number(line) + " : " + res.toString());
+        delete engine;
         return;
     }
+
+    delete engine;
     //end test run
 
     sortModel->setNewScript(script, maps);
@@ -962,5 +1011,25 @@ void ChemFilter::save()
 
 void ChemFilter::loadWhere()
 {
-    ui->txtFilter->setPlainText(ui->cmbFilter->currentData().toString());
+    txtFilter->setPlainText(cmbFilter->currentData().toString());
+}
+
+void ChemFilter::selectAllModels()
+{
+    for(int i=0; i< lstModels->topLevelItemCount(); i++)
+    {
+        QTreeWidgetItem *it = lstModels->topLevelItem(i);
+        for(int j=0; j< it->childCount(); j++)
+            it->child(j)->setData(0, Qt::CheckStateRole, Qt::Checked);
+    }
+}
+
+void ChemFilter::deselectAllModels()
+{
+    for(int i=0; i< lstModels->topLevelItemCount(); i++)
+    {
+        QTreeWidgetItem *it = lstModels->topLevelItem(i);
+        for(int j=0; j< it->childCount(); j++)
+            it->child(j)->setData(0, Qt::CheckStateRole, Qt::Unchecked);
+    }
 }

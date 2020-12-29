@@ -15,7 +15,7 @@ class NewColumn : public QDialog
     Q_OBJECT
 
 public:
-    explicit NewColumn(QWidget *parent, QsarTableModel *mdl, QScriptEngine * eng);
+    explicit NewColumn(QWidget *parent, QsarTableModel *mdl);
     ~NewColumn();
 
     const QString getVariable() const;
