@@ -1,4 +1,4 @@
-# ChemFilter - a desktop application for ADMETox
-Desktop app for using Transformer-CNN ADMETox models
+# ChemFilter - a cross-platform desktop application for ADMETox screening based on Transformer-CNN deep learning models
 
-Descriptions and models are coming soon. 
+
+![Main window](https://github.com/carpovpv/chemfilter/blob/master/images/screenshot.png)
