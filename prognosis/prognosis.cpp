@@ -11,6 +11,11 @@
 #include <set>
 #include <math.h>
 
+#ifdef WIN32
+    #include <windows.h>
+    #include <winnls.h>
+#endif
+
 #include "../transformermodel.h"
 
 std::string to_string(float x)
@@ -47,6 +52,40 @@ void calcMeanAndError(const std::vector<float> &data,
 
 int main()
 {
+#ifdef WIN32
+
+    const int MAX_MODULE_NAME = 1024;
+    char modulename[MAX_MODULE_NAME];
+
+    int len = GetModuleFileNameA(NULL, modulename, 1024);
+    if(len == 0)
+    {
+        fprintf(stderr, "Cannot determine the module path.\n");
+        return 0;
+    }
+
+    char * p = strrchr(modulename, '\\');
+    if( p == NULL )
+    {
+        fprintf(stderr, "Cannot analyze module's name.\n");
+        return 0;
+    }
+
+    *++p = '\0';
+
+    len = p - modulename;
+
+    char env_babel_lib[MAX_MODULE_NAME + 30];
+    sprintf(env_babel_lib, "BABEL_LIBDIR=%s/obplugins",modulename);
+
+    putenv(env_babel_lib);
+
+    char env_babel_data[MAX_MODULE_NAME + 30];
+    sprintf(env_babel_data, "BABEL_DATADIR=%s/obdata",modulename);
+    putenv(env_babel_data);
+
+#endif
+
     if(chdir("models"))
     {
         std::cerr << "Directory models is inaccessible: errno "
