@@ -8,6 +8,7 @@ ChemFilter allows to view SDF files, estimate various physicochemical parameters
 * Qt Framework, v. 5 (https://www.qt.io/)
 * OpenBabel, v. 3 (http://openbabel.org/wiki/Main_Page)
 * OpenBlas (https://www.openblas.net/)
+* Transformer-CNN (https://github.com/bigchem/transformer-cnn). Only if you need to build a special QSAR/QSPR model.
 
 # Building
 The project governs by the CMake build system. 
@@ -66,7 +67,30 @@ Line # | Description | Example
 1| Category of the property. All the models are grouped into categories, for example: the toxicity category contains: Ames, hERG, and LD50, by default. | Physicochemical properties
 2|The name of the model. This name is displayed in the model tree. | Water Solubility, log(mol/L)
 3|The corresponding variable. When the model is about to run, it will ask the main table to create two additional columns for the results. | solubility (this column will have solubility estimation), solubility_d (relative error, %) 
-4 and on|Typical interval for DrugBank compounds in form Percentage low high| 50 -4.4749 -3.4006. That means that estimations of the solubility of 50% of all compounds from the DrugBank lie in -4.4749 -3.4006
+4 and on|Typical interval for DrugBank compounds in form Percentage low high| 50 -4.4749 -3.4006. That means that estimations of the solubility of 50% of all compounds from the DrugBank lie in -4.4749 -3.4006. 
+
+Only the first three lines are necessary.
+
+### Converting Transformer-CNN models to binary format for ChemFilter
+To build a custom model, the transformer-cnn original package has to be used (https://github.com/bigchem/transformer-cnn). The final model is placed in a tar archive file. To convert this tar file to binary trm file, a convert.py scipt should be used. It takes two arguments: the filename of the tar archive and the name of trm file to be generated. 
+
+For example, you have developed a Transformer-CNN model for estimating pMIC values and your outpu file is pMIC.tar.
+
+```
+python3 convert.py pMIC.tar pMIC-1.trm 
+```
+
+You should also create a pMIC subfolder in the "models" directory and place pMIC-1.trm there. In case you wish to have multiple repetitions of the same model, you could name them pMIC-2.trm, pMIC-3.trm, etc. While making estimation, every model will contribute to the vectors of predicted values. Currently, 10 different augmented SMILES are used to make a prediction. So, if the subfolder contains only one trm file, then the vector will have 10 values. If 3 models are available, then the vector will have 30 estimations. The final value is to be put into the main table is the mean of all these values. The relative error is calculated based on all these values. Note that less than 10 different SMILES can be produced depending on a structure, and, consequently, the overall number of estimations will be lower, but still number_of_SMILES * number_of_models.
+
+The info file could be as follows:
+
+```
+Custom models
+pMIC
+pmic
+```
+After you restart the ChemFilter program you have to see the model in the models tree.
+
 
 
 
