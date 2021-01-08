@@ -1,6 +1,6 @@
 # ChemFilter - a cross-platform desktop application for ADMETox screening based on Transformer-CNN deep learning models
 
-ChemFilter allows to view SDF files, estimate various physicochemical parameters and biological activities based on Transformer-CNN models (https://jcheminf.biomedcentral.com/articles/10.1186/s13321-020-00423-w). The program provides a filtering mechanism to select the most interesting compounds. To run it, you need neither GPU cards nor installed machine-learning frameworks. We offer all necessary files in the Releases for Windows environment. If you need a version for Mac OS or a particular version of Linux, please contact us.
+ChemFilter allows to view SDF files, estimate various physicochemical parameters and biological activities based on Transformer-CNN models (https://jcheminf.biomedcentral.com/articles/10.1186/s13321-020-00423-w). The program provides a filtering mechanism to select the most interesting compounds. To run it, you need neither GPU cards nor installed machine-learning frameworks. We offer all necessary files in the Releases for Windows environment. If you need a version for Mac OS or a particular version of Linux, please contact.
 
 ![Main window](https://github.com/carpovpv/chemfilter/blob/master/images/screenshot.png)
 
