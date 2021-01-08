@@ -72,7 +72,7 @@ Line # | Description | Example
 Only the first three lines are necessary.
 
 ### Converting Transformer-CNN models to binary format for ChemFilter
-To build a custom model, the transformer-cnn original package has to be used (https://github.com/bigchem/transformer-cnn). The final model is placed in a tar archive file. To convert this tar file to binary trm file, a convert.py scipt should be used. It takes two arguments: the filename of the tar archive and the name of trm file to be generated. 
+To build a custom model, the transformer-cnn original package has to be used (https://github.com/bigchem/transformer-cnn). There are two different script for RDkit and OpenBabel backends. You have to choose OpenBabel. The final model is placed in a tar archive file. To convert this tar file to binary trm file, a convert.py scipt should be used. It takes two arguments: the filename of the tar archive and the name of trm file to be generated. 
 
 For example, you have developed a Transformer-CNN model for estimating pMIC values and your outpu file is pMIC.tar.
 
@@ -90,6 +90,19 @@ pMIC
 pmic
 ```
 After you restart the ChemFilter program you have to see the model in the models tree.
+
+# Prognosis console program 
+
+The program reads all the models from the "models" directory. It reads SMILES from the stdin and outputs the properties calculated in JSON format to the stdout. Thus, it can be easily used in any scripting environment. For haloperidol, it has output similar to this:
+
+{"ames": 5.99298e-06,"ames_d": 2,"caco2": 1.02705,"caco2_d": 10,"cyp2c9": 0.0276725,"cyp2c9_d": 91,"cyp3a4": 0.000754463,"cyp3a4_d": 66,"dmso": 0.998374,"dmso_d": 0,"fu": -1.13989,"fu_d": 4,"herg": 0.570661,"herg_d": 34,"hia": 0.995536,"hia_d": 1,"hob": 0.915962,"hob_d": 16,"ld50": 3.33052,"ld50_d": 3,"logd": 2.99685,"logd_d": 4,"metabolic_stability": 0.0224747,"metabolic_stability_d": 116,"pgp_inhibitor": 0.999658,"pgp_inhibitor_d": 0,"pgp_substrate": 0.408574,"pgp_substrate_d": 62,"pka": 8.60061,"pka_d": 2,"ppb": 1.02707,"ppb_d": 8,"solubility": -4.37149,"solubility_d": 2,"vod": 1.09984,"vod_d": 7}
+
+
+#  To-do list
+1. possibility to load and merge several SDF files; 
+2. adding new rows (molecules);
+3. possibility to calculate a similarity measure to compounds in external files;
+4. enhancing the histogram plot; 
 
 
 
