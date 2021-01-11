@@ -102,7 +102,8 @@ The program reads all the models from the "models" directory. It reads SMILES fr
 1. possibility to load and merge several SDF files; 
 2. adding new rows (molecules);
 3. possibility to calculate a similarity measure to compounds in external files;
-4. enhancing the histogram plot.
+4. enhancing the histogram plot;
+5. visualization of atoms' contributions, LRP.
 
 In case of interest, do not hesitate to contact me.
 
