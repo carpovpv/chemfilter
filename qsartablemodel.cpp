@@ -196,6 +196,8 @@ void QsarTableModel::loadDataFromFile(const QString &fname, QWidget * parent)
         std::vector< OpenBabel::OBGenericData * > prop;
 
         OpenBabel::OBMol mol;
+        QSet<QString> unique;
+
         while(conv.Read(&mol))
         {
             off_t cur = sdf.tellg();
@@ -210,6 +212,15 @@ void QsarTableModel::loadDataFromFile(const QString &fname, QWidget * parent)
             mol.DeleteHydrogens();
             mol.Center();
 
+            std::stringstream os;
+            conv.SetOutStream(&os);
+            conv.Write(&mol);
+
+            QString smiles = QString::fromStdString(os.str()).split("\t")[0];
+            if(unique.contains(smiles))
+                continue;
+
+            unique.insert(smiles);
             mols.push_back(mol);
 
             QMap<int, QVariant> md;
@@ -243,12 +254,6 @@ void QsarTableModel::loadDataFromFile(const QString &fname, QWidget * parent)
                 if(ok) md[col] = d_val;
                 else md[col] = val;
             }
-
-            std::stringstream os;
-            conv.SetOutStream(&os);
-            conv.Write(&mol);
-
-            QString smiles = QString::fromStdString(os.str()).split("\t")[0];
 
             int curmol = mols.size() - 1;
 
