@@ -28,9 +28,10 @@ private:
     QString varName;
     QString script;
 
-
 private slots:
+
     void ok();
+    void selectFile();
 };
 
 #endif // NEWCOLUMN_H
