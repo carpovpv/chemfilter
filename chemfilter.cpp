@@ -246,6 +246,7 @@ void ChemFilter::createDockWindows()
     createDockModels();
     createDockColumns();
     createDockRule();
+    createDockProps();
 }
 
 void ChemFilter::createDockModels()
@@ -393,8 +394,36 @@ void ChemFilter::createDockRule()
 
 }
 
+void ChemFilter::createDockProps()
+{
+    QDockWidget * dockProps = new QDockWidget(tr("Properties"), this);
+    dockProps->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
+                               | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    QWidget * frame = new QWidget(dockProps);
+
+    QStringList headers = {"Name", "Value"};
+
+    tblProps = new QTableWidget(frame);
+    tblProps->setAlternatingRowColors(true);
+    tblProps->setColumnCount(headers.size());
+    tblProps->setHorizontalHeaderLabels(headers);
+    tblProps->horizontalHeader()->setStretchLastSection(true);
+
+    QVBoxLayout * vbox = new QVBoxLayout(frame);
+    vbox->addWidget(tblProps);
+
+    dockProps->setWidget(frame);
+    addDockWidget(Qt::RightDockWidgetArea, dockProps);
+
+}
+
 void ChemFilter::LoadSdf()
 {
+    if(ui->tblData->model())
+        disconnect(ui->tblData->selectionModel(),
+                SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                this, SLOT(listProps()));
 
     sdfFileName.clear();
 
@@ -449,6 +478,10 @@ void ChemFilter::LoadSdf()
     stsInfo->setText(tr("Loaded %1 molecules.").arg(mdl->rowCount()));
 
     setDown();
+
+    connect(ui->tblData->selectionModel(),
+            SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+            this, SLOT(listProps()));
 }
 
 void ChemFilter::exportSdf()
@@ -1032,4 +1065,30 @@ void ChemFilter::deselectAllModels()
         for(int j=0; j< it->childCount(); j++)
             it->child(j)->setData(0, Qt::CheckStateRole, Qt::Unchecked);
     }
+}
+
+void ChemFilter::listProps()
+{
+    tblProps->clearContents();
+    tblProps->setRowCount(0);
+
+    QModelIndex pind = ui->tblData->currentIndex();
+    if(!pind.isValid())
+        return;
+
+    QsarTableModel * mdl = static_cast<QsarTableModel*>( sortModel->sourceModel());
+    QModelIndex ind = sortModel->mapToSource( pind );
+
+    tblProps->setRowCount(ui->tblData->model()->columnCount() - 3);
+    for(int i=3; i < ui->tblData->horizontalHeader()->count(); i++)
+    {
+        QTableWidgetItem * it = new QTableWidgetItem(
+                    mdl->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
+        tblProps->setItem(i-3, 0, it);
+
+        it = new QTableWidgetItem(
+                    mdl->index(ind.row(), i).data().toString());
+        tblProps->setItem(i-3, 1, it);
+    }
+
 }

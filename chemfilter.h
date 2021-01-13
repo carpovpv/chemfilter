@@ -138,6 +138,9 @@ private:
 
     void createDockRule();
 
+    QTableWidget * tblProps;
+    void createDockProps();
+
 private slots:
 
     void LoadSdf();
@@ -166,6 +169,8 @@ private slots:
 
     void selectAllModels();
     void deselectAllModels();
+
+    void listProps();
 };
 
 #endif // CHEMFILTER_H
