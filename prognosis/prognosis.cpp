@@ -10,6 +10,8 @@
 #include <string>
 #include <set>
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 
 #ifdef WIN32
     #include <windows.h>
@@ -52,6 +54,8 @@ void calcMeanAndError(const std::vector<float> &data,
 
 int main()
 {
+    srand(time(NULL));
+
 #ifdef WIN32
 
     const int MAX_MODULE_NAME = 1024;
