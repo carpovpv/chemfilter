@@ -25,12 +25,13 @@ SET (HEADERS chemfilter.h clearthread.h lap_checkbox.h newcolumn.h
     histwidget.h
     enterresult.h
     heighttextedit.h
+    freezetable.h
     )
 
 SET (SOURCES delegate.cpp qsartablemodel.cpp newcolumn.cpp
              chemfilter.cpp main.cpp clearthread.cpp transformermodel.cpp qsarsortmodel.cpp
              style/qplastiquestyle.cpp
-             style/qstylehelper.cpp histwidget.cpp enterresult.cpp heighttextedit.cpp
+             style/qstylehelper.cpp histwidget.cpp enterresult.cpp heighttextedit.cpp freezetable.cpp
              )
 
 SET(RCFILE

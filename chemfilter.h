@@ -141,6 +141,8 @@ private:
     QTableWidget * tblProps;
     void createDockProps();
 
+    void closeEvent(QCloseEvent *event);
+
 private slots:
 
     void LoadSdf();

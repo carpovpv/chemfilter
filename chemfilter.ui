@@ -97,10 +97,16 @@ QTreeView::item:has-children {background:#c1d5ff;}</string>
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_4">
               <item row="1" column="0" colspan="8">
-               <widget class="QTableView" name="tblData">
+               <widget class="FreezeTableWidget" name="tblData">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
                 <property name="sortingEnabled">
                  <bool>true</bool>
                 </property>
+                <attribute name="horizontalHeaderHighlightSections">
+                 <bool>false</bool>
+                </attribute>
                 <attribute name="verticalHeaderDefaultSectionSize">
                  <number>150</number>
                 </attribute>
@@ -254,6 +260,13 @@ QTreeView::item:has-children {background:#c1d5ff;}</string>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>FreezeTableWidget</class>
+   <extends>QTableView</extends>
+   <header>freezetable.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

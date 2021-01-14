@@ -112,6 +112,10 @@ ChemFilter::ChemFilter(QWidget *parent) :
             this, SLOT(enterValue(QModelIndex)));
     connect(ui->btnSave, SIGNAL(clicked(bool)),
             this, SLOT(save()));
+
+    QSettings settings;
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
 }
 
 ChemFilter::~ChemFilter()
@@ -252,6 +256,7 @@ void ChemFilter::createDockWindows()
 void ChemFilter::createDockModels()
 {
     QDockWidget * dockModels = new QDockWidget(tr("QSAR models"), this);
+    dockModels->setObjectName("dock->qsar-models");
     dockModels->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     QWidget * frame = new QWidget(dockModels);
@@ -313,6 +318,7 @@ void ChemFilter::createDockModels()
 void ChemFilter::createDockColumns()
 {
     QDockWidget * dockColumns = new QDockWidget(tr("Dataset Properties"), this);
+    dockColumns->setObjectName("dock-dataset-properties");
     dockColumns->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     QWidget * frame = new QWidget(dockColumns);
@@ -362,6 +368,7 @@ void ChemFilter::createDockColumns()
 void ChemFilter::createDockRule()
 {
     QDockWidget * dockRules = new QDockWidget(tr("Rules"), this);
+    dockRules->setObjectName("dock-rules");
     dockRules->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
                                | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -397,6 +404,7 @@ void ChemFilter::createDockRule()
 void ChemFilter::createDockProps()
 {
     QDockWidget * dockProps = new QDockWidget(tr("Properties"), this);
+    dockProps->setObjectName("dock->properties");
     dockProps->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
                                | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -416,6 +424,15 @@ void ChemFilter::createDockProps()
     dockProps->setWidget(frame);
     addDockWidget(Qt::RightDockWidgetArea, dockProps);
 
+}
+
+void ChemFilter::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+
+    QMainWindow::closeEvent(event);
 }
 
 void ChemFilter::LoadSdf()
@@ -454,19 +471,25 @@ void ChemFilter::LoadSdf()
     ui->tblData->setModel(sortModel);
     ui->tblData->horizontalHeader()->setVisible(true);
 
-    ui->tblData->setItemDelegateForColumn(0, checkBoxDelegate);
-    ui->tblData->setItemDelegateForColumn(1, molDelegate);
+    ui->tblData->init(checkBoxDelegate, molDelegate);
 
     ui->tblData->setColumnWidth(0, 30);
     ui->tblData->setColumnWidth(1, 250);
 
+    ui->tblData->setItemDelegateForColumn(0, checkBoxDelegate);
+    ui->tblData->setItemDelegateForColumn(1, molDelegate);
+
     lstCols->clear();
+
     for(int i = 3; i< mdl->cols.size(); i++)
     {
         QListWidgetItem *it = new QListWidgetItem(mdl->cols[i], lstCols);
         it->setCheckState(Qt::Checked);
         it->setData(Qt::UserRole, i);
     }
+
+    for(int i=0 ;i < mdl->rowCount(); i++)
+        ui->tblData->setRowHeight(i, 120);
 
     connect(lstCols, SIGNAL(itemChanged(QListWidgetItem*)),
             this, SLOT(itemChanged(QListWidgetItem *)));
@@ -482,6 +505,8 @@ void ChemFilter::LoadSdf()
     connect(ui->tblData->selectionModel(),
             SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
             this, SLOT(listProps()));
+
+
 }
 
 void ChemFilter::exportSdf()
@@ -904,6 +929,9 @@ void ChemFilter::filter()
 
     sortModel->setNewScript(script, maps);
     stsInfo->setText(tr("Loaded %1 molecules. Filtered %2").arg(mdl->rowCount()).arg(sortModel->rowCount()));
+
+    for(int i=0 ;i < mdl->rowCount(); i++)
+        ui->tblData->setRowHeight(i, 120);
 }
 
 void ChemFilter::stopCalc()
