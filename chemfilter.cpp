@@ -1114,8 +1114,20 @@ void ChemFilter::listProps()
                     mdl->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
         tblProps->setItem(i-3, 0, it);
 
-        it = new QTableWidgetItem(
-                    mdl->index(ind.row(), i).data().toString());
+        QVariant d = mdl->index(ind.row(), i).data();
+        QString s = d.toString();
+
+        if(d.type() == QVariant::Double)
+            s = QString::number(d.toDouble(), 'g', 4);
+        else
+        {
+            bool ok = false;
+            double x = d.toDouble(&ok);
+            if(ok)
+                s = QString::number(x, 'g', 4);
+        }
+
+        it = new QTableWidgetItem(s);
         tblProps->setItem(i-3, 1, it);
     }
 
