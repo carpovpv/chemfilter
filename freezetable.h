@@ -10,6 +10,8 @@ public:
       FreezeTableWidget(QWidget *parent);
       ~FreezeTableWidget();
       void init(QItemDelegate *first, QItemDelegate *second);
+      void hideNewlyAddedColumns();
+
 protected:
       void resizeEvent(QResizeEvent *event) override;
       QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers) override;

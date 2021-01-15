@@ -28,30 +28,6 @@ std::string to_string(float x)
     return std::string(buf);
 }
 
-void calcMeanAndError(const std::vector<float> &data,
-                      float * avg,
-                      float * err)
-{
-    float x2 = 0.0;
-    *avg = 0.0;
-
-    for(int i=0; i< data.size(); i++)
-    {
-        x2 += data[i] * data[i];
-        *avg += data[i];
-    }
-
-    const int N = data.size();
-    *avg /= N;
-
-    float s2 = (x2 - (*avg) * (*avg) * N) / (N - 1);
-    if(s2 < 0)
-        s2 = 0.0;
-
-    float ci = student(N - 1) * sqrt( s2 ) / sqrt(N);
-    *err = fabs(round(200.0 * ci / (*avg + 1e-3)));
-}
-
 int main()
 {
     srand(time(NULL));

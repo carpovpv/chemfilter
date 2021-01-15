@@ -41,6 +41,40 @@ float student(int freedom)
     return tbl [freedom];
 }
 
+void calcMeanAndError(const std::vector<float> &data,
+                      float * avg,
+                      float * err)
+{
+
+    float x2 = 0.0;
+    *avg = 0.0;
+
+    for(int i=0; i< data.size(); i++)
+    {
+        x2 += data[i] * data[i];
+        *avg += data[i];
+    }
+
+    const int N = data.size();
+    *avg /= N;
+
+    float s2 = (x2 - (*avg) * (*avg) * N) / (N - 1);
+    if(s2 < 0)
+        s2 = 0.0;
+
+    float ci = student(N - 1) * sqrt( s2 ) / sqrt(N);
+
+    //Zero prediction problem: if both the estimation and the error are less then TOL
+    //the error set to zero.
+    if( fabs(*avg) < TOL && ci < TOL)
+    {
+        *err = 0.0;
+        return;
+    }
+
+    *err = fabs(round(200.0 * ci / (*avg + TOL)));
+}
+
 const char * TransformerModel::vocab = " ^#%()+-./0123456789=@ABCDEFGHIKLMNOPRSTVXYZ[\\]abcdefgilmnoprstuy$";
 
 TransformerModel::TransformerModel(const char *fname, const char *prop)

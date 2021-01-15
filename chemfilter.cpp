@@ -687,6 +687,8 @@ void ChemFilter::calculate()
         int il = mdl->addColumnModel(property);
         int ih = mdl->addColumnModel(property_error);
 
+        ui->tblData->hideNewlyAddedColumns();
+
         QListWidgetItem *it = new QListWidgetItem(property, lstCols);
         it->setCheckState(Qt::Checked);
         it->setData(Qt::UserRole, il);
@@ -731,33 +733,22 @@ void ChemFilter::calculate()
 
                 if(GetRandomSmiles(smiles, ms, max_n))
                 {
-                    QVector<double> results;
+                    std::vector<float> results;
                     for(int m =0; m< mdls.size(); m++)
                     {
                         auto res = mdls[m]->predict(ms, max_n);
                         if(res.valid)
                         {
                             for(int i=0; i< res.size; i++)
-                                results.append(res.value[i]);
+                                results.push_back(res.value[i]);
                         }
                     }
 
-                    double s = 0.0;
-
-                    for(int i=0; i< results.size(); i++)
-                        s += results[i];
-
-                    double mean = s / results.size();
-                    double sigma = 0.0;
-
-                    for(int i=0; i< results.size(); i++)
-                        sigma += (results[i] - mean) * (results[i] - mean);
-
-                    double ci = student(results.size() - 1)
-                            * sqrt(sigma / (results.size() - 1)) / sqrt(results.size());
+                    float mean, err;
+                    calcMeanAndError(results, &mean, &err);
 
                     mdl->setData(idx_l, mean, Qt::DisplayRole);
-                    mdl->setData(idx_h, fabs(round(2000.0 * ci / (mean + 1e-3))/10.0) , Qt::DisplayRole);
+                    mdl->setData(idx_h, err, Qt::DisplayRole);
 
                 }
 
@@ -811,6 +802,8 @@ void ChemFilter::addNewColumn()
 
     }
     delete a;
+
+    ui->tblData->hideNewlyAddedColumns();
 }
 
 void ChemFilter::deleteColumn()
@@ -854,6 +847,8 @@ void ChemFilter::deleteColumn()
     //restore right order of cols
     for(int i=0; i< lstCols->count(); i++)
         lstCols->item(i)->setData(Qt::UserRole, i+3);
+
+    ui->tblData->hideNewlyAddedColumns();
 }
 
 void ChemFilter::setUp()

@@ -54,6 +54,14 @@ void FreezeTableWidget::init(QItemDelegate * first, QItemDelegate * second)
       setVerticalScrollMode(ScrollPerPixel);
       frozenTableView->setVerticalScrollMode(ScrollPerPixel);
 }
+
+void FreezeTableWidget::hideNewlyAddedColumns()
+{
+    if( model() )
+    for (int col = 2; col < model()->columnCount(); ++col)
+        frozenTableView->setColumnHidden(col, true);
+}
+
 void FreezeTableWidget::updateSectionWidth(int logicalIndex, int /* oldSize */, int newSize)
 {
       if (logicalIndex < 2)

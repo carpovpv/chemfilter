@@ -24,6 +24,9 @@
 
 #include <cblas.h>
 
+//Used in error estimation for zero-like predictions.
+#define TOL 1e-3
+
 //Generate a batch of SMILES corresponding to the molecule.
 //If the mol is out of vocabulary, or some problem occured
 //the function returns false.
@@ -33,6 +36,9 @@ bool GetRandomSmiles(const std::string & smiles,
                      int &max_n);
 //< 30 points
 float student(int freedom);
+void calcMeanAndError(const std::vector<float> &data,
+                      float * avg,
+                      float * err);
 
 class TransformerModel
 {
