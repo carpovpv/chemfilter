@@ -51,6 +51,19 @@ bool QsarSortModel::lessThan(const QModelIndex &left, const QModelIndex &right) 
 
     if(ld.type() == QVariant::String || rd.type() == QVariant::String)
     {
+         //try float
+         QString l = ld.toString().replace(",",".");
+         QString r = rd.toString().replace(",",".");
+
+         bool l_ok = false;
+         bool r_ok = false;
+
+         double l_f = l.toDouble(&l_ok);
+         double r_f = r.toDouble(&r_ok);
+
+         if(l_ok && r_ok)
+             return l_f < r_f;
+
          qlonglong ll;
          qlonglong lr;
 

@@ -72,7 +72,7 @@ void calcMeanAndError(const std::vector<float> &data,
         return;
     }
 
-    *err = fabs(round(200.0 * ci / (*avg + TOL)));
+    *err = fabs(round(100.0 * ci / (*avg + TOL)));
 }
 
 const char * TransformerModel::vocab = " ^#%()+-./0123456789=@ABCDEFGHIKLMNOPRSTVXYZ[\\]abcdefgilmnoprstuy$";
