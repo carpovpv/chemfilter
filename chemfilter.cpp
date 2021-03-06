@@ -218,7 +218,8 @@ void ChemFilter::LoadModels()
     cmbFilter->addItem("", QString());
     for(auto it = cnts.begin(); it != cnts.end(); it++)
     {
-        if(it.value() == models.size())
+        //We may have some custom models, this condition might never been met in real work.
+        //if(it.value() == models.size())
         {
             double threshold = it.key();
 
@@ -1127,3 +1128,4 @@ void ChemFilter::listProps()
     }
 
 }
+

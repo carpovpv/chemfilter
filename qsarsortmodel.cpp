@@ -46,7 +46,7 @@ bool QsarSortModel::lessThan(const QModelIndex &left, const QModelIndex &right) 
     QVariant ld = sourceModel()->data(left);
     QVariant rd = sourceModel()->data(right);
 
-    if(ld.type() == QVariant::Double && rd.type() == QVariant::Double)
+    if(ld.canConvert(QMetaType::Float) && rd.canConvert(QMetaType::Float))
         return ld.toDouble() <= rd.toDouble();
 
     if(ld.type() == QVariant::String || rd.type() == QVariant::String)
